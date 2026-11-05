@@ -1,0 +1,122 @@
+# ALL SYNTHETIC. No real people, numbers or records. Phone numbers are masked placeholders.
+worker:
+  name: Kavita Shinde
+  role: TB Health Visitor
+  centre: Demo TB Unit (synthetic)
+  language: hi-IN
+patients:
+  - id: P1
+    name: Ramesh Patil
+    name_local: "रमेशजी"
+    name_hi: "रमेश पाटिल"
+    age: 42
+    gender: M
+    city: Pune
+    language: mr-IN
+    voice: Prakash
+    call_time: "10:00"
+    phone_masked: "+91 98XXX XX101"
+    family: {name: Savita Patil, relation: wife, voice: Chetana, phone_masked: "+91 97XXX XX201"}
+    regimen: "2HRZE / 4HR (DS-TB)"
+    story: "Fine for 18 days. Day 19: yellow eyes and vomiting for two days."
+  - id: P2
+    name: Sunita Devi
+    name_local: "सुनीता"
+    name_hi: "सुनीता देवी"
+    age: 35
+    gender: F
+    city: Lucknow
+    language: hi-IN
+    voice: Kalpana
+    call_time: "10:15"
+    phone_masked: "+91 98XXX XX102"
+    family: {name: Rakesh Kumar, relation: husband, voice: Shubham, phone_masked: "+91 97XXX XX202"}
+    regimen: "2HRZE / 4HR (DS-TB)"
+    story: "Scared by red urine and asks whether to stop the medicine."
+  - id: P3
+    name: Imran Shaikh
+    name_local: "इमरान"
+    name_hi: "इमरान शेख"
+    age: 28
+    gender: M
+    city: Mumbai
+    language: hi-en
+    voice: Devansh
+    call_time: "10:30"
+    phone_masked: "+91 98XXX XX103"
+    family: {name: Nasreen Shaikh, relation: mother, voice: Vasudha, phone_masked: "+91 97XXX XX203"}
+    regimen: "2HRZE / 4HR (DS-TB)"
+    story: "Feels fine after three weeks and has stopped the pills."
+  - id: P4
+    name: Lakshmamma
+    name_local: "ಲಕ್ಷ್ಮಮ್ಮ"
+    name_hi: "लक्ष्मम्मा"
+    age: 60
+    gender: F
+    city: Mysuru
+    language: kn-IN
+    voice: Lakshmi
+    call_time: "11:00"
+    phone_masked: "+91 98XXX XX104"
+    family: {name: Manjunath, relation: son, voice: Avinash, phone_masked: "+91 97XXX XX204"}
+    regimen: "2HRZE / 4HR (DS-TB)"
+    story: "Does not pick up twice. Her son says she went to the village without her tablets."
+  - id: P5
+    name: Raju Yadav
+    name_local: "राजू"
+    name_hi: "राजू यादव"
+    age: 50
+    gender: M
+    city: Nagpur
+    language: hi-IN
+    voice: Harshad
+    call_time: "11:15"
+    phone_masked: "+91 98XXX XX105"
+    family: {name: Geeta Yadav, relation: wife, voice: Kalpana, phone_masked: "+91 97XXX XX205"}
+    regimen: "2HRZE / 4HR (DS-TB)"
+    noise: {kind: construction, snr_db: 10}
+    story: "Answers from a noisy construction site; says his eyes are NOT yellow."
+  - id: P6
+    name: Farida Begum
+    name_local: "फ़रीदा"
+    name_hi: "फ़रीदा बेगम"
+    age: 45
+    gender: F
+    city: Hyderabad
+    language: hi-IN
+    voice: Vasudha
+    call_time: "11:30"
+    phone_masked: "+91 98XXX XX106"
+    family: {name: Salim, relation: brother, voice: Yashraj, phone_masked: "+91 97XXX XX206"}
+    regimen: "2HRZE / 4HR (DS-TB)"
+    story: "Coughing on the call; blood in her cough for two days."
+  - id: P7
+    name: Mitali Ghosh
+    name_local: "মিতালী"
+    name_hi: "मिताली घोष"
+    age: 38
+    gender: F
+    city: Kolkata
+    language: bn-IN
+    voice: Riyaa
+    call_time: "11:45"
+    phone_masked: "+91 98XXX XX107"
+    family: {name: Subrata Ghosh, relation: husband, voice: Shubham, phone_masked: "+91 97XXX XX207"}
+    regimen: "2HRZE / 4HR (DS-TB)"
+    noise: {kind: crowd, snr_db: 15}
+    story: "Blurred vision for a few days and colours look wrong (ethambutol warning sign)."
+  - id: P8
+    name: Meena Jadhav
+    name_local: "मीनाताई"
+    name_hi: "मीना जाधव"
+    age: 31
+    gender: F
+    city: Nashik
+    language: mr-IN
+    voice: Chetana
+    call_time: "12:00"
+    phone_masked: "+91 98XXX XX108"
+    family: {name: Sachin Jadhav, relation: husband, voice: Yashraj, phone_masked: "+91 97XXX XX208"}
+    regimen: "2HRZE / 4HR (DS-TB)"
+    noise: {kind: pressure_cooker, snr_db: 12}
+    story: "Took her dose, no problems - while the pressure cooker whistles."

@@ -1,0 +1,21 @@
+# Latin-script words Prisma's codemix format may keep in English, merged into every language.
+dose_taken: ["took it", "taken", "i took"]
+dose_missed: ["missed", "forgot", "did not take", "didn't take"]
+dose_stopped: ["stopped", "stop kar"]
+red:
+  yellow_eyes: ["yellow", "jaundice"]
+  blood_cough: ["blood"]
+  breathless: ["breathless", "breathing"]
+  vision: ["blurry", "blurred"]
+  rash: ["rash", "itching"]
+vomit: ["vomit", "vomiting"]
+benign:
+  orange_urine: ["orange urine", "red urine", "urine"]
+  mild_nausea: ["nausea"]
+  tiredness: ["tired", "weakness"]
+affirm: ["yes", "ok yes"]
+deny: ["no"]
+no_problem: ["no problem", "all good", "fine"]
+negation: ["no", "not", "never"]
+question: ["should", "what"]
+unsure: ["don't know", "not sure", "later"]

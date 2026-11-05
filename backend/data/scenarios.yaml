@@ -1,0 +1,103 @@
+# ALL SYNTHETIC. What each fictional patient says. Rendered to audio with Gnani Timbre v3.0
+# (patient voices + audio tags like <coughs>), then phone-degraded to 8 kHz mu-law with noise.
+#
+# `answers` maps the agent's question stage -> what the patient says.
+# `expected` is the ground truth the evaluator scores against.
+
+demo_day: 19
+
+demo:
+  P1:
+    answers:
+      ask_dose: "हो, घेतली."
+      ask_symptoms: "हो, दोन दिवसांपासून डोळे पिवळे दिसतायत आणि उलटी होतेय."
+    expected: {status: RED, rule: R1}
+  P2:
+    answers:
+      ask_dose: "हाँ, ले ली दवा।"
+      ask_symptoms: "बस पेशाब का रंग लाल आ रहा है, डर लग रहा है। दवा बंद कर दूँ क्या?"
+    expected: {status: GREEN, rule: R7}
+  P3:
+    answers:
+      ask_dose: "Ab main theek hoon, maine dawai band kar di."
+      ask_symptoms: "Nahi, koi problem nahi hai."
+    expected: {status: AMBER, rule: R3}
+  P4:
+    no_answer_attempts: 2
+    family_answer: "<sigh> ಅಮ್ಮ ಊರಿಗೆ ಹೋಗಿದ್ದಾರೆ, ಮಾತ್ರೆ ತೆಗೆದುಕೊಂಡು ಹೋಗಿಲ್ಲ."
+    expected: {status: AMBER, rule: F2}
+  P5:
+    answers:
+      ask_dose: "हाँ ले ली, आँखें पीली नहीं हैं, सब ठीक है।"
+      confirm_symptom: "नहीं, पीलापन नहीं है।"
+    expected: {status: GREEN, rule: R8}
+  P6:
+    answers:
+      ask_dose: "<coughs> हाँ, दवा ले ली है।"
+      ask_symptoms: "<coughs> खांसी में खून आ रहा है, दो दिन से।"
+    expected: {status: RED, rule: R1}
+  P7:
+    answers:
+      ask_dose: "হ্যাঁ, খেয়েছি।"
+      ask_symptoms: "চোখে কেমন ঝাপসা দেখছি কদিন ধরে, রংগুলো ঠিক বুঝতে পারছি না।"
+    expected: {status: RED, rule: R1}
+  P8:
+    answers:
+      ask_dose: "हो, सकाळीच गोळी घेतली."
+      ask_symptoms: "नाही, काही त्रास नाही."
+    expected: {status: GREEN, rule: R8}
+
+# Evaluation calls. voice = Timbre v3.0 voice for the synthetic speaker.
+eval:
+  # ---------------- Hindi
+  - {id: hi01, lang: hi-IN, voice: Prakash, answers: {ask_dose: "हाँ जी, ले ली।", ask_symptoms: "नहीं, कोई तकलीफ़ नहीं है।"}, expected: {status: GREEN, rule: R8}}
+  - {id: hi02, lang: hi-IN, voice: Kalpana, answers: {ask_dose: "हाँ, खा ली थी सुबह।", ask_symptoms: "पेशाब थोड़ा लाल आ रहा है बस।"}, expected: {status: GREEN, rule: R7}}
+  - {id: hi03, lang: hi-IN, voice: Shubham, answers: {ask_dose: "आज भूल गया, नहीं ली।"}, expected: {status: AMBER, rule: R6}}
+  - {id: hi04, lang: hi-IN, voice: Vasudha, answers: {ask_dose: "हाँ ली है।", ask_symptoms: "आँखें पीली हो गई हैं, और भूख नहीं लगती।"}, expected: {status: RED, rule: R1}}
+  - {id: hi05, lang: hi-IN, voice: Yashraj, answers: {ask_dose: "<coughs> हाँ ले ली।", ask_symptoms: "<coughs> बलगम में खून आ रहा है।"}, expected: {status: RED, rule: R1}}
+  - {id: hi06, lang: hi-IN, voice: Harshad, answers: {ask_dose: "हम्म <pauses> हाँ, ले ली।", ask_symptoms: "सब ठीक है।"}, expected: {status: GREEN, rule: R8}}
+  - {id: hi07, lang: hi-IN, voice: Tarika, answers: {ask_dose: "अब तो मैं ठीक हो गई हूँ, दवा छोड़ दी है।", ask_symptoms: "नहीं।"}, expected: {status: AMBER, rule: R3}}
+  - {id: hi08, lang: hi-IN, voice: Avinash, answers: {ask_dose: "हाँ ले ली।", ask_symptoms: "सांस फूल रही है, चलने में दिक्कत है।"}, expected: {status: RED, rule: R1}}
+  - {id: hi09, lang: hi-IN, voice: Riyaa, answers: {ask_dose: "ले ली दवा।", ask_symptoms: "बार बार उल्टी हो रही है।"}, expected: {status: RED, rule: R1}}
+  - {id: hi10, lang: hi-IN, voice: Shivani, answers: {ask_dose: "जी, ले ली।", ask_symptoms: "थोड़ा जी मिचलाता है।"}, expected: {status: GREEN, rule: R7}}
+  - {id: hi11, lang: hi-IN, voice: Devansh, answers: {ask_dose: "हाँ ले ली, आँखें पीली नहीं हैं।", confirm_symptom: "नहीं, बिल्कुल नहीं।", ask_symptoms: "कुछ नहीं।"}, expected: {status: GREEN, rule: R8}}
+  - {id: hi12, lang: hi-IN, voice: Chetana, answers: {ask_dose: "ले ली।", ask_symptoms: "पैरों में झुनझुनी होती है।"}, expected: {status: AMBER, rule: R6b}}
+  - {id: hi13, lang: hi-IN, voice: Prakash, answers: {ask_dose: "पता नहीं, अभी बाहर हूँ।", followup_dose: "अरे हाँ हाँ, ले ली थी।", ask_symptoms: "नहीं, कुछ नहीं।"}, expected: {status: GREEN, rule: R8}}
+  - {id: hi14, lang: hi-IN, voice: Kalpana, answers: {ask_dose: "बाद में बात करते हैं।", followup_dose: "अभी टाइम नहीं है।", ask_symptoms: "नहीं।"}, expected: {status: AMBER, rule: R4}}
+  - {id: hi15, lang: hi-IN, voice: Harshad, answers: {ask_dose: "हाँ ले ली।", ask_symptoms: "शरीर पर दाने निकल आए हैं, बहुत खुजली है।"}, expected: {status: RED, rule: R1}}
+  - {id: hi16, lang: hi-IN, voice: Yashraj, answers: {ask_dose: "हाँ।", ask_symptoms: "धुंधला दिखाई दे रहा है।"}, expected: {status: RED, rule: R1}}
+  # ---------------- Hinglish (code-mixed)
+  - {id: he01, lang: hi-en, voice: Devansh, answers: {ask_dose: "Haan, morning mein le li thi.", ask_symptoms: "Nahi, all good."}, expected: {status: GREEN, rule: R8}}
+  - {id: he02, lang: hi-en, voice: Riyaa, answers: {ask_dose: "Haan le li, but urine ka colour orange aa raha hai.", ask_symptoms: "Bas wahi."}, expected: {status: GREEN, rule: R7}}
+  - {id: he03, lang: hi-en, voice: Shubham, answers: {ask_dose: "Sorry, aaj tablet miss ho gayi, bhool gaya.", ask_symptoms: "Nahi."}, expected: {status: AMBER, rule: R6}}
+  - {id: he04, lang: hi-en, voice: Tarika, answers: {ask_dose: "Haan li hai.", ask_symptoms: "Cough mein thoda blood aa raha hai."}, expected: {status: RED, rule: R1}}
+  - {id: he05, lang: hi-en, voice: Avinash, answers: {ask_dose: "Main theek ho gaya hoon, ab dawai ki zarurat nahi.", ask_symptoms: "Nahi."}, expected: {status: AMBER, rule: R3}}
+  # ---------------- Marathi
+  - {id: mr01, lang: mr-IN, voice: Chetana, answers: {ask_dose: "हो, घेतली.", ask_symptoms: "नाही, सगळं ठीक आहे."}, expected: {status: GREEN, rule: R8}}
+  - {id: mr02, lang: mr-IN, voice: Prakash, answers: {ask_dose: "आज विसरलो, घेतली नाही.", ask_symptoms: "नाही."}, expected: {status: AMBER, rule: R6}}
+  - {id: mr03, lang: mr-IN, voice: Shivani, answers: {ask_dose: "हो घेतली.", ask_symptoms: "लघवी लाल होतेय, त्याची भीती वाटते."}, expected: {status: GREEN, rule: R7}}
+  - {id: mr04, lang: mr-IN, voice: Yashraj, answers: {ask_dose: "हो.", ask_symptoms: "खोकल्यातून रक्त येतंय."}, expected: {status: RED, rule: R1}}
+  - {id: mr05, lang: mr-IN, voice: Harshad, answers: {ask_dose: "बरं वाटतंय म्हणून गोळ्या बंद केल्या.", ask_symptoms: "नाही."}, expected: {status: AMBER, rule: R3}}
+  - {id: mr06, lang: mr-IN, voice: Kalpana, answers: {ask_dose: "घेतली.", ask_symptoms: "डोळे पिवळे नाहीत, पण पोटदुखी आहे."}, expected: {status: AMBER, rule: R6b}}
+  - {id: mr07, lang: mr-IN, voice: Avinash, answers: {ask_dose: "हो घेतली.", ask_symptoms: "दम लागतोय, श्वास घ्यायला त्रास होतोय."}, expected: {status: RED, rule: R1}}
+  # ---------------- Bengali
+  - {id: bn01, lang: bn-IN, voice: Riyaa, answers: {ask_dose: "হ্যাঁ, খেয়েছি।", ask_symptoms: "না, কোনো অসুবিধা নেই।"}, expected: {status: GREEN, rule: R8}}
+  - {id: bn02, lang: bn-IN, voice: Shubham, answers: {ask_dose: "আজ খেতে ভুলে গেছি।", ask_symptoms: "না।"}, expected: {status: AMBER, rule: R6}}
+  - {id: bn03, lang: bn-IN, voice: Tarika, answers: {ask_dose: "হ্যাঁ খেয়েছি।", ask_symptoms: "প্রস্রাবের রং লাল হচ্ছে।"}, expected: {status: GREEN, rule: R7}}
+  - {id: bn04, lang: bn-IN, voice: Avinash, answers: {ask_dose: "খেয়েছি।", ask_symptoms: "চোখ হলুদ হয়ে গেছে, আর বারবার বমি হচ্ছে।"}, expected: {status: RED, rule: R1}}
+  - {id: bn05, lang: bn-IN, voice: Vasudha, answers: {ask_dose: "ভালো আছি বলে ওষুধ বন্ধ করে দিয়েছি।", ask_symptoms: "না।"}, expected: {status: AMBER, rule: R3}}
+  - {id: bn06, lang: bn-IN, voice: Devansh, answers: {ask_dose: "হ্যাঁ।", ask_symptoms: "<coughs> কাশির সাথে রক্ত আসছে।"}, expected: {status: RED, rule: R1}}
+  # ---------------- Kannada
+  - {id: kn01, lang: kn-IN, voice: Lakshmi, answers: {ask_dose: "ಹೌದು, ತೆಗೆದುಕೊಂಡೆ.", ask_symptoms: "ಏನೂ ತೊಂದರೆ ಇಲ್ಲ."}, expected: {status: GREEN, rule: R8}}
+  - {id: kn02, lang: kn-IN, voice: Avinash, answers: {ask_dose: "ಇವತ್ತು ಮರೆತೆ, ತೆಗೆದುಕೊಂಡಿಲ್ಲ.", ask_symptoms: "ಇಲ್ಲ."}, expected: {status: AMBER, rule: R6}}
+  - {id: kn03, lang: kn-IN, voice: Kalpana, answers: {ask_dose: "ಹೌದು.", ask_symptoms: "ಕಣ್ಣು ಹಳದಿ ಆಗಿದೆ."}, expected: {status: RED, rule: R1}}
+  - {id: kn04, lang: kn-IN, voice: Prakash, answers: {ask_dose: "ತೆಗೆದುಕೊಂಡೆ.", ask_symptoms: "ಮೂತ್ರ ಕೆಂಪು ಬಣ್ಣ ಇದೆ."}, expected: {status: GREEN, rule: R7}}
+  - {id: kn05, lang: kn-IN, voice: Shivani, answers: {ask_dose: "ಹುಷಾರಾಗಿದ್ದೇನೆ, ಮಾತ್ರೆ ನಿಲ್ಲಿಸಿದೆ.", ask_symptoms: "ಇಲ್ಲ."}, expected: {status: AMBER, rule: R3}}
+  - {id: kn06, lang: kn-IN, voice: Harshad, answers: {ask_dose: "ಹೌದು ತೆಗೆದುಕೊಂಡೆ.", ask_symptoms: "ಉಸಿರಾಡಲು ಕಷ್ಟ ಆಗ್ತಿದೆ."}, expected: {status: RED, rule: R1}}
+
+# Noise conditions for the evaluation sweep.
+noise_conditions:
+  - {name: clean, kind: null, snr_db: null}
+  - {name: street_15db, kind: street, snr_db: 15}
+  - {name: crowd_10db, kind: crowd, snr_db: 10}
+  - {name: construction_5db, kind: construction, snr_db: 5}

@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Noto Sans Devanagari", "Noto Sans Bengali", "Noto Sans Kannada", ui-sans-serif, system-ui, sans-serif;
+  --color-brand-50: #f0fdfa;
+  --color-brand-100: #ccfbf1;
+  --color-brand-500: #14b8a6;
+  --color-brand-600: #0d9488;
+  --color-brand-700: #0f766e;
+  --color-brand-800: #115e59;
+  --color-brand-900: #134e4a;
+}
+
+:root {
+  --bg: #f6f8f8;
+  --card: #ffffff;
+  --ink: #0f1f1e;
+  --muted: #5b6b6a;
+  --line: #e3e9e8;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b1211;
+    --card: #121b1a;
+    --ink: #e6efee;
+    --muted: #93a5a3;
+    --line: #22302e;
+    color-scheme: dark;
+  }
+}
+html, body, #root { min-height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+.muted { color: var(--muted); }
+.line { border-color: var(--line); }
+.indic { font-family: "Noto Sans Devanagari", "Noto Sans Bengali", "Noto Sans Kannada", var(--font-sans); }
+
+@keyframes ring { 0%,100% { transform: rotate(0) } 10%,30%,50% { transform: rotate(-12deg) } 20%,40% { transform: rotate(12deg) } 60% { transform: rotate(0) } }
+.ringing { animation: ring 1.2s ease-in-out infinite; transform-origin: 50% 10%; }
+@keyframes pulse-dot { 0% { box-shadow: 0 0 0 0 rgba(20,184,166,.6) } 100% { box-shadow: 0 0 0 10px rgba(20,184,166,0) } }
+.live-dot { animation: pulse-dot 1.4s infinite; }
+@keyframes bar { 0%,100% { height: 20% } 50% { height: 100% } }
+.wave span { display: inline-block; width: 3px; margin: 0 1px; border-radius: 2px; background: currentColor; animation: bar .9s ease-in-out infinite; }
+.wave span:nth-child(2) { animation-delay: .1s } .wave span:nth-child(3) { animation-delay: .2s } .wave span:nth-child(4) { animation-delay: .3s } .wave span:nth-child(5) { animation-delay: .4s }

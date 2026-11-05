@@ -1,0 +1,27 @@
+# Hindi + romanised Hinglish lexicon. Longest phrase wins; short words match whole tokens only.
+dose_taken: ["ले ली", "ले लिया", "ले ली है", "ले लिया है", "खा ली", "खा लिया", "ली है", "ली थी", "ले चुका", "ले चुकी", "खाई है", "le li", "le liya", "kha li", "kha liya", "li hai", "le chuka", "took", "taken", "tablet li", "goli kha li", "dawai le li"]
+dose_missed: ["नहीं ली", "नहीं लिया", "नहीं खाई", "ली नहीं", "खाई नहीं", "भूल गया", "भूल गई", "भूल गयी", "छूट गई", "छूट गया", "nahi li", "nahi liya", "nahi khayi", "bhool gaya", "bhool gayi", "bhul gaya", "missed", "forgot", "chhoot gayi"]
+dose_stopped: ["बंद कर दी", "बंद कर दिया", "बंद कर दिया है", "दवा बंद", "दवाई बंद", "छोड़ दी", "छोड़ दिया", "छोड दी", "अब ज़रूरत नहीं", "ज़रूरत नहीं", "जरूरत नहीं", "band kar di", "band kar diya", "band kar dee", "chhod di", "chod di", "chhod diya", "stopped", "stop kar di", "zarurat nahi"]
+away: ["गाँव गई", "गाँव गए", "गांव गई", "गांव गए", "गाँव चली", "गाँव गया", "बाहर गए", "बाहर गई", "दवा नहीं ले गई", "दवा साथ नहीं", "gaon gayi", "gaon gaye", "village"]
+red:
+  yellow_eyes: ["आँखें पीली", "आंखें पीली", "आँख पीली", "आंख पीली", "पीलिया", "पीलापन", "पीली", "पीला", "peeli", "peela", "pili", "piliya", "jaundice", "yellow"]
+  blood_cough: ["खून", "ख़ून", "खुन", "खूं", "खांसी में खून", "बलगम में खून", "khoon", "khun", "blood"]
+  breathless: ["सांस फूल", "साँस फूल", "सांस लेने में", "सांस नहीं", "साँस नहीं", "दम घुट", "सांस की तकलीफ", "saans phool", "saans", "breathless", "breathing problem"]
+  vision: ["धुंधला", "धुंधली", "दिखाई नहीं", "कम दिख", "dhundhla", "blurry", "blurred"]
+  rash: ["दाने", "खुजली", "चकत्ते", "rash", "khujli", "itching"]
+vomit: ["उल्टी", "उलटी", "उल्टियां", "उल्टियाँ", "ulti", "vomit", "vomiting"]
+intensifier: ["बार बार", "बार-बार", "लगातार", "रोज़", "रोज", "दिन से", "दिनों से", "हर बार", "बहुत", "bar bar", "baar baar", "lagatar", "roz", "din se", "repeatedly", "continuously"]
+benign:
+  orange_urine: ["पेशाब लाल", "लाल पेशाब", "पेशाब नारंगी", "नारंगी पेशाब", "पेशाब का रंग", "नारंगी", "पेशाब", "laal peshab", "peshab laal", "peshab", "orange urine", "red urine", "urine"]
+  mild_nausea: ["जी मिचला", "जी मिचल", "मितली", "ji michla", "nausea", "matli"]
+  tiredness: ["थकान", "कमज़ोरी", "कमजोरी", "थकावट", "thakan", "kamzori", "tired", "weakness"]
+watch:
+  stomach_pain: ["पेट दर्द", "पेट में दर्द", "पेट दुख", "pet dard", "stomach pain"]
+  tingling: ["झुनझुनी", "सुन्न", "jhunjhuni", "numbness", "tingling"]
+  joint_pain: ["जोड़ों में दर्द", "जोड़ों का दर्द", "जोड़ दर्द", "joint pain"]
+affirm: ["हाँ", "हां", "हा", "जी", "जी हाँ", "हम्म हाँ", "haan", "han", "haa", "ha", "ji", "yes", "hmm haan"]
+deny: ["नहीं", "नही", "ना", "nahi", "nahin", "nai", "na", "no", "nope"]
+no_problem: ["कोई तकलीफ़ नहीं", "कोई तकलीफ नहीं", "कोई दिक्कत नहीं", "कोई परेशानी नहीं", "सब ठीक", "सब ठीक है", "ठीक हूँ", "ठीक हूं", "ठीक है", "कुछ नहीं", "kuch nahi", "sab theek", "theek hoon", "theek hai", "koi problem nahi", "koi taklif nahi", "no problem", "all good", "fine"]
+negation: ["नहीं", "नही", "ना", "न", "मत", "nahi", "nahin", "nai", "na", "no", "not", "never"]
+question: ["क्या", "kya", "क्यों"]
+unsure: ["पता नहीं", "मालूम नहीं", "याद नहीं", "pata nahi", "maloom nahi", "yaad nahi", "बाद में", "टाइम नहीं", "time nahi"]
