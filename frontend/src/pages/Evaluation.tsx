@@ -3,8 +3,8 @@ import { api, LANG, type EvalReport, type Metrics } from '../api'
 import { Chip, Stat } from '../components'
 
 const COND_LABEL: Record<string, string> = {
-  text: 'Ground-truth text (no audio)', clean: 'Clean phone line', street_15db: 'Street traffic · 15 dB SNR',
-  crowd_10db: 'Crowd babble · 10 dB SNR', construction_5db: 'Construction · 5 dB SNR', crowd_10db_noboost: 'Crowd 10 dB · keyterm boost OFF',
+  text: 'Ground-truth text (no audio)', clean: 'Clean phone line', street_15db: 'Street traffic, 15 dB SNR',
+  crowd_10db: 'Crowd babble, 10 dB SNR', construction_5db: 'Construction, 5 dB SNR', crowd_10db_noboost: 'Crowd 10 dB, keyterm boosting off',
 }
 const pct = (x: number | null | undefined) => (x === null || x === undefined ? '–' : `${(x * 100).toFixed(1)}%`)
 
@@ -33,9 +33,8 @@ export default function Evaluation() {
   return (
     <div className="space-y-6">
       <section>
-        <p className="text-sm font-medium text-brand-700 dark:text-brand-500">Evaluation · {r.generated_at} · {r.mode}</p>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">Does it work on a noisy phone line?</h1>
-        <p className="mt-2 max-w-3xl text-sm muted">{r.pipeline}. Every number below was measured by <code>scripts/evaluate.py</code>, which runs the
+        <h1 className="display text-5xl sm:text-6xl">Does it catch a danger sign on a noisy phone line?</h1>
+        <p className="mt-3 max-w-3xl text-base muted">Measured {r.generated_at}. {r.pipeline}. Every number below was measured by <code>scripts/evaluate.py</code>, which runs the
           exact production dialogue and policy code. All calls are synthetic: {r.n_scenarios} scripted calls in 5 languages, voiced by different Timbre speakers.</p>
       </section>
 
@@ -49,7 +48,7 @@ export default function Evaluation() {
       )}
 
       <section className="card overflow-x-auto p-4">
-        <h2 className="font-semibold">By line condition</h2>
+        <h2 className="text-lg font-semibold">By line condition</h2>
         <table className="mt-3 w-full min-w-[720px] text-sm">
           <thead className="text-left text-xs muted"><tr>
             <th className="py-2 pr-3 font-medium">Condition</th><th className="pr-3 font-medium">Calls</th><th className="pr-3 font-medium">Status accuracy</th>
@@ -73,12 +72,12 @@ export default function Evaluation() {
 
       {boost && noboost && (
         <section className="card p-4">
-          <h2 className="font-semibold">Prisma v3.0 keyterm boosting (crowd noise, 10 dB)</h2>
+          <h2 className="text-lg font-semibold">Prisma v3.0 keyterm boosting (crowd noise, 10 dB)</h2>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            {([['Boost ON (TB drug + symptom keyterms)', boost], ['Boost OFF', noboost]] as [string, Metrics][]).map(([label, m]) => (
+            {([['With TB drug and symptom keyterms', boost], ['Without keyterms', noboost]] as [string, Metrics][]).map(([label, m]) => (
               <div key={label} className="rounded-xl border line p-3 text-sm">
                 <p className="font-medium">{label}</p>
-                <p className="mt-1 muted">Status accuracy {pct(m.status_acc)} · red recall {pct(m.red_recall)} · CER {pct(m.cer ?? null)}</p>
+                <p className="mt-1 muted">Status accuracy {pct(m.status_acc)}, red-flag recall {pct(m.red_recall)}, character error rate {pct(m.cer ?? null)}</p>
               </div>
             ))}
           </div>
@@ -86,7 +85,7 @@ export default function Evaluation() {
       )}
 
       <section className="card overflow-x-auto p-4">
-        <h2 className="font-semibold">By language (all noisy-audio conditions)</h2>
+        <h2 className="text-lg font-semibold">By language (all noisy-audio conditions)</h2>
         <table className="mt-3 w-full min-w-[520px] text-sm">
           <thead className="text-left text-xs muted"><tr><th className="py-2 font-medium">Language</th><th className="font-medium">Calls</th><th className="font-medium">Status accuracy</th><th className="font-medium">Red-flag recall</th><th className="font-medium">False GREEN</th></tr></thead>
           <tbody className="divide-y line">
@@ -99,7 +98,7 @@ export default function Evaluation() {
       </section>
 
       <section className="card p-4">
-        <h2 className="font-semibold">Every miss, unedited ({r.failures.length})</h2>
+        <h2 className="text-lg font-semibold">Every miss, unedited ({r.failures.length})</h2>
         <p className="mt-1 text-xs muted">Misses are listed so they can be fixed, not hidden. The safety question is the direction of each miss: towards a human (AMBER) is safe, towards GREEN is not.</p>
         {r.failures.length === 0 ? <p className="mt-3 text-sm">No misses.</p> : (
           <ul className="mt-3 space-y-2 text-sm">

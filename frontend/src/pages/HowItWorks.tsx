@@ -14,7 +14,7 @@ const PIPE = [
 ]
 
 const INVARIANTS = [
-  ['Any danger sign → RED, immediately', 'Nothing downstream can downgrade it. The patient is told to go to hospital / 108 if worse.'],
+  ['Any danger sign is escalated at once', 'Nothing downstream can downgrade it. The patient is told to go to hospital / 108 if worse.'],
   ['Never GREEN when unsure', 'Unclear or low-confidence answers always go to a human as AMBER.'],
   ['Negation is confirmed, not guessed', '“आँखें पीली नहीं हैं” triggers one yes/no confirmation question.'],
   ['Questions are not statements', '“दवा बंद कर दूँ क्या?” (should I stop?) is not read as “I stopped”.'],
@@ -30,8 +30,7 @@ export default function HowItWorks() {
   return (
     <div className="space-y-8">
       <section>
-        <p className="text-sm font-medium text-brand-700 dark:text-brand-500">How Khurak decides</p>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">Rules decide. Humans approve. Nothing is invented.</h1>
+                <h1 className="display mt-1 text-5xl sm:text-6xl">Rules decide. Humans approve. Nothing is invented.</h1>
         <p className="mt-2 max-w-3xl text-sm muted">
           99DOTS, India's missed-call adherence system, records a missed call and nothing else. A missed call cannot say
           “my urine turned orange and I'm scared” or “my eyes are yellow”. Voice can. Khurak listens, but every action comes from an auditable rule table.
@@ -49,7 +48,7 @@ export default function HowItWorks() {
       </section>
 
       <section className="card p-5">
-        <h2 className="font-semibold">Safety invariants (unit-tested)</h2>
+        <h2 className="text-lg font-semibold">Safety invariants (unit-tested)</h2>
         <ul className="mt-3 grid gap-3 md:grid-cols-2">
           {INVARIANTS.map(([a, b]) => <li key={a} className="rounded-xl border line p-3"><p className="font-medium">{a}</p><p className="mt-1 text-sm muted indic">{b}</p></li>)}
         </ul>
@@ -58,7 +57,7 @@ export default function HowItWorks() {
       {p && (
         <>
           <section className="card overflow-x-auto p-5">
-            <h2 className="font-semibold">Policy table: evaluated top to bottom, first match wins</h2>
+            <h2 className="text-lg font-semibold">Policy table: evaluated top to bottom, first match wins</h2>
             <table className="mt-3 w-full min-w-[560px] text-sm">
               <tbody className="divide-y line">
                 {Object.entries(p.rules).map(([k, v]) => (
@@ -66,12 +65,12 @@ export default function HowItWorks() {
                 ))}
               </tbody>
             </table>
-            <p className="mt-2 text-xs muted">R = within a call · F = family call · X = across calls and days (retries, family escalation, 3-day home visit).</p>
+            <p className="mt-2 text-xs muted">R rules act within a call, F rules on family calls, X rules across calls and days (retries, family escalation, 3-day home visit).</p>
           </section>
 
           <section className="card p-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="font-semibold">Everything Khurak can say</h2>
+              <h2 className="text-lg font-semibold">Everything Khurak can say</h2>
               <div className="flex gap-1">
                 {Object.keys(p.templates).map((l) => (
                   <button key={l} onClick={() => setLang(l)} className={`rounded-lg px-2.5 py-1 text-xs font-medium ${lang === l ? 'bg-brand-700 text-white' : 'border line'}`}>{LANG[l] ?? l}</button>

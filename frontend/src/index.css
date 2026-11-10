@@ -1,45 +1,127 @@
 @import "tailwindcss";
 
+/* Khurak tokens.
+   Ballpoint blue (the ink of ASHA registers) is the only accent. Red / amber / green are
+   reserved for patient status. Blister-pack foil is the one decorative material. */
 @theme {
-  --font-sans: "Inter", "Noto Sans Devanagari", "Noto Sans Bengali", "Noto Sans Kannada", ui-sans-serif, system-ui, sans-serif;
-  --color-brand-50: #f0fdfa;
-  --color-brand-100: #ccfbf1;
-  --color-brand-500: #14b8a6;
-  --color-brand-600: #0d9488;
-  --color-brand-700: #0f766e;
-  --color-brand-800: #115e59;
-  --color-brand-900: #134e4a;
+  --font-sans: "Anek Latin", "Anek Devanagari", "Anek Bangla", "Anek Kannada", ui-sans-serif, system-ui, sans-serif;
+  --color-brand-50: #eef1fb;
+  --color-brand-100: #dce3f7;
+  --color-brand-500: #5a72d6;
+  --color-brand-600: #3150ba;
+  --color-brand-700: #2340a8;
+  --color-brand-800: #1c338a;
+  --color-brand-900: #16286c;
 }
 
 :root {
-  --bg: #f6f8f8;
+  --bg: #f1f4f0;          /* register paper */
   --card: #ffffff;
-  --ink: #0f1f1e;
-  --muted: #5b6b6a;
-  --line: #e3e9e8;
+  --ink: #18202b;
+  --muted: #5a6570;
+  --line: #d9e0da;
+  --foil: #cdd3d8;
+  --foil-hi: #eef1f3;
+  --pen: #2340a8;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0b1211;
-    --card: #121b1a;
-    --ink: #e6efee;
-    --muted: #93a5a3;
-    --line: #22302e;
+    --bg: #10151c;
+    --card: #171e27;
+    --ink: #e7ecef;
+    --muted: #97a3ad;
+    --line: #27323f;
+    --foil: #3a4552;
+    --foil-hi: #4b5765;
+    --pen: #8ea2ef;
     color-scheme: dark;
   }
 }
+
 html, body, #root { min-height: 100%; }
-body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
-.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Component classes live in a layer so Tailwind utilities (border-l-red-600, ring-2...) can override them. */
+@layer components {
+/* Surfaces: a hairline, no drop shadows. Hierarchy comes from radius and weight, not effects. */
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
 .muted { color: var(--muted); }
 .line { border-color: var(--line); }
-.indic { font-family: "Noto Sans Devanagari", "Noto Sans Bengali", "Noto Sans Kannada", var(--font-sans); }
+.pen { color: var(--pen); }
+.indic { font-family: "Anek Devanagari", "Anek Bangla", "Anek Kannada", "Anek Latin", sans-serif; }
 
+/* Display type: Anek's condensed width carries the headlines. */
+.display { font-stretch: 78%; font-weight: 700; letter-spacing: -0.01em; line-height: 0.95; }
+.wordmark { font-stretch: 82%; font-weight: 750; letter-spacing: -0.02em; }
+
+:focus-visible { outline: 2px solid var(--pen); outline-offset: 2px; border-radius: 6px; }
+
+/* ---------------------------------------------------------------- blister pack */
+.blister {
+  display: grid;
+  gap: var(--gap, 6px);
+  padding: var(--pad, 8px);
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, var(--foil-hi) 0%, var(--foil) 45%, var(--foil-hi) 70%, var(--foil) 100%);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+.pocket {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.25) 60%, rgba(0, 0, 0, 0.06));
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.18), 0 1px 0 rgba(255, 255, 255, 0.6);
+  display: grid;
+  place-items: center;
+}
+.pocket.capsule { aspect-ratio: 0.62; }
+.pocket.empty::after {               /* punched-through foil: dose not confirmed */
+  content: "";
+  position: absolute;
+  inset: 22%;
+  border-radius: 999px;
+  border: 1.5px dashed rgba(0, 0, 0, 0.28);
+}
+.pocket.today { box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.18), 0 0 0 2px var(--pen); }
+.pill {
+  width: 72%;
+  height: 72%;
+  border-radius: 999px;
+  box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.18), inset 0 2px 3px rgba(255, 255, 255, 0.45);
+}
+.capsule .pill { width: 70%; height: 84%; }
+.pill.GREEN { background: linear-gradient(180deg, #3d9b67 0 50%, #e9f3ec 50% 100%); }
+.pill.AMBER { background: linear-gradient(180deg, #d99a1e 0 50%, #fbf1dc 50% 100%); }
+.pill.RED { background: linear-gradient(180deg, #c7392f 0 50%, #fbe4e2 50% 100%); }
+.pocket:not(.capsule) .pill.GREEN { background: #3d9b67; }
+.pocket:not(.capsule) .pill.AMBER { background: #d99a1e; }
+.pocket:not(.capsule) .pill.RED { background: #c7392f; }
+
+@keyframes drop-in { 0% { transform: translateY(-40%) scale(0.6); opacity: 0 } 70% { transform: translateY(4%) scale(1.04); opacity: 1 } 100% { transform: none } }
+.pill.dropped { animation: drop-in 420ms cubic-bezier(.2,.8,.3,1.2) both; }
+@keyframes calling { 0%, 100% { box-shadow: inset 0 1px 2px rgba(0,0,0,.18), 0 0 0 2px var(--pen) } 50% { box-shadow: inset 0 1px 2px rgba(0,0,0,.18), 0 0 0 5px color-mix(in srgb, var(--pen) 25%, transparent) } }
+.pocket.calling { animation: calling 1.1s ease-in-out infinite; }
+
+}
+
+/* ---------------------------------------------------------------- small motion that answers state */
 @keyframes ring { 0%,100% { transform: rotate(0) } 10%,30%,50% { transform: rotate(-12deg) } 20%,40% { transform: rotate(12deg) } 60% { transform: rotate(0) } }
 .ringing { animation: ring 1.2s ease-in-out infinite; transform-origin: 50% 10%; }
-@keyframes pulse-dot { 0% { box-shadow: 0 0 0 0 rgba(20,184,166,.6) } 100% { box-shadow: 0 0 0 10px rgba(20,184,166,0) } }
-.live-dot { animation: pulse-dot 1.4s infinite; }
+@keyframes pulse-dot { 0% { box-shadow: 0 0 0 0 rgba(35,64,168,.5) } 100% { box-shadow: 0 0 0 8px rgba(35,64,168,0) } }
+.live-dot { animation: pulse-dot 1.6s infinite; }
 @keyframes bar { 0%,100% { height: 20% } 50% { height: 100% } }
 .wave span { display: inline-block; width: 3px; margin: 0 1px; border-radius: 2px; background: currentColor; animation: bar .9s ease-in-out infinite; }
 .wave span:nth-child(2) { animation-delay: .1s } .wave span:nth-child(3) { animation-delay: .2s } .wave span:nth-child(4) { animation-delay: .3s } .wave span:nth-child(5) { animation-delay: .4s }
+
+@media (prefers-reduced-motion: reduce) {
+  .pill.dropped, .pocket.calling, .ringing, .live-dot, .wave span { animation: none !important; }
+}

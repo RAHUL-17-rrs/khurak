@@ -67,8 +67,8 @@ export default function PhoneSimulator({ status }: { status: AppStatus | null })
       const r = await api.startCall(patient.id, 'patient')
       const n = await api.noAnswer(r.call_id)
       setMissedInfo(n.next === 'call_family'
-        ? `Rule X2: ${n.unanswered_today} unanswered attempts today → Khurak calls the family contact (${patient.family.relation} ${patient.family.name}).`
-        : 'Rule X1: no answer → Khurak will retry in 2 hours (max 2 attempts).')
+        ? `Rule X2: ${n.unanswered_today} unanswered calls today, so Khurak now calls the family contact, ${patient.family.name} (${patient.family.relation}).`
+        : 'Rule X1: no answer, so Khurak will try again in 2 hours (at most twice).')
       setPhase('missed')
     } catch (e) { setErr(String(e)); setPhase('idle') }
   }
@@ -161,26 +161,26 @@ export default function PhoneSimulator({ status }: { status: AppStatus | null })
       <section className="mx-auto w-full max-w-[380px]">
         <div className="relative rounded-[2.6rem] border-[10px] border-slate-900 bg-slate-950 p-4 text-white shadow-2xl dark:border-slate-700" style={{ minHeight: 640 }}>
           <div className="mx-auto mb-4 h-5 w-28 rounded-full bg-slate-900" />
-          <p className="text-center text-[11px] text-slate-400">{patient?.phone_masked} · {LANG[patient?.language ?? ''] ?? ''}{kind === 'family' ? ' · family contact' : ''}</p>
+          <p className="text-center text-xs text-slate-400">{patient?.phone_masked}, in {LANG[patient?.language ?? ''] ?? ''}{kind === 'family' ? ', family contact' : ''}</p>
 
           {phase === 'idle' && (
             <div className="mt-24 text-center">
               <p className="text-sm text-slate-400">{patient ? `${patient.name}'s phone` : 'Loading…'}</p>
-              <button onClick={() => ring('patient')} className="mt-6 rounded-full bg-brand-600 px-6 py-3 font-semibold hover:bg-brand-500">📞 Khurak calls {patient?.name.split(' ')[0]}</button>
-              <button onClick={() => ring('family')} className="mt-3 block w-full text-xs text-slate-400 underline">or call family contact ({patient?.family.relation})</button>
+              <button onClick={() => ring('patient')} className="mt-6 rounded-full bg-brand-600 px-6 py-3 font-semibold hover:bg-brand-500">Khurak calls {patient?.name.split(' ')[0]}</button>
+              <button onClick={() => ring('family')} className="mt-3 block w-full text-sm text-slate-400 underline">Or call their {patient?.family.relation} instead</button>
             </div>
           )}
 
           {phase === 'ringing' && (
             <div className="mt-20 text-center">
-              <div className="ringing mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-brand-600 text-4xl">📞</div>
+              <div className="ringing mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-brand-600"><svg viewBox="0 0 24 24" className="h-9 w-9" fill="currentColor" aria-hidden><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg></div>
               <p className="mt-5 text-xl font-semibold">Khurak</p>
-              <p className="text-sm text-slate-400">Health Centre · incoming call to {who}</p>
+              <p className="text-sm text-slate-400">Health centre, calling {who}</p>
               <div className="mt-16 flex justify-around">
                 {kind === 'patient' && <button onClick={decline} className="flex h-16 w-16 items-center justify-center rounded-full bg-red-600 text-2xl" title="Don't answer">✕</button>}
                 <button onClick={pickUp} className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500 text-2xl" title="Answer">✆</button>
               </div>
-              <p className="mt-3 text-[11px] text-slate-500">Green = answer · Red = let it ring out</p>
+              <p className="mt-3 text-xs text-slate-500">Green answers. Red lets it ring out.</p>
             </div>
           )}
 
@@ -197,7 +197,7 @@ export default function PhoneSimulator({ status }: { status: AppStatus | null })
           {(inCall || phase === 'closed') && (
             <div className="flex flex-col" style={{ minHeight: 540 }}>
               <div className="text-center">
-                <p className="font-semibold">Khurak · Health Centre</p>
+                <p className="font-semibold">Khurak, from the health centre</p>
                 <p className="text-xs text-slate-400">{phase === 'closed' ? 'Call ended' : `On call with ${who}`}</p>
               </div>
               <div className="mt-3 flex-1 space-y-2 overflow-y-auto pr-1" style={{ maxHeight: 330 }}>
@@ -212,14 +212,14 @@ export default function PhoneSimulator({ status }: { status: AppStatus | null })
                     {t.heard !== undefined && (
                       <div className="ml-auto max-w-[90%] rounded-2xl rounded-tr-sm bg-slate-800 px-3 py-2">
                         <p className="indic text-[14px]">{t.heard || '(silence)'}</p>
-                        <p className="mt-1 text-[10px] text-slate-400">{t.mock ? 'mock STT' : 'Prisma v3.0'}{t.sttMs ? ` · ${t.sttMs} ms` : ''} · {t.source}</p>
+                        <p className="mt-1 text-[11px] text-slate-400">{t.mock ? 'Mock transcript' : `Heard by Prisma v3.0${t.sttMs ? ` in ${t.sttMs} ms` : ''}`}, {t.source}</p>
                       </div>
                     )}
                   </div>
                 ))}
-                {phase === 'patient_audio' && <p className="text-right text-xs text-slate-400"><Wave /> patient speaking (Timbre synthetic voice, 8 kHz line)…</p>}
-                {phase === 'processing' && <p className="text-right text-xs text-slate-400"><Wave /> Prisma transcribing → policy deciding…</p>}
-                {phase === 'agent' && <p className="text-xs text-brand-100"><Wave /> Khurak speaking…</p>}
+                {phase === 'patient_audio' && <p className="text-right text-xs text-slate-400"><Wave /> Patient answering (synthetic Timbre voice on an 8 kHz line)</p>}
+                {phase === 'processing' && <p className="text-right text-xs text-slate-400"><Wave /> Prisma is transcribing, then the rules decide</p>}
+                {phase === 'agent' && <p className="text-xs text-brand-100"><Wave /> Khurak is speaking</p>}
               </div>
 
               {phase === 'closed' && final && (
@@ -227,30 +227,30 @@ export default function PhoneSimulator({ status }: { status: AppStatus | null })
                   <div className="flex items-center justify-between"><StatusPill status={final.status} /><Chip tone="violet">{final.rule}</Chip></div>
                   <p className="mt-2 text-sm font-medium">{final.rule_text}</p>
                   <p className="mt-1 text-xs text-slate-600">{(final.reasons ?? []).map(reasonLabel).join(', ')}</p>
-                  <div className="mt-2 flex gap-2"><TraceButton callId={final.call_id} label="Why? (decision trace)" />
+                  <div className="mt-2 flex gap-2"><TraceButton callId={final.call_id} label="Why this decision?" />
                     <button onClick={reset} className="rounded-lg border px-2.5 py-1 text-xs">New call</button></div>
                 </div>
               )}
 
               {['your_turn', 'recording'].includes(phase) && (
                 <div className="mt-3 space-y-2">
-                  <p className="text-center text-[11px] uppercase tracking-wider text-slate-400">Your answer · {STAGE_HINT[stage] ?? stage}</p>
+                  <p className="text-center text-sm text-slate-300">Your turn to answer: {STAGE_HINT[stage] ?? stage}</p>
                   {phase === 'recording' ? (
                     <button onClick={stopRec} className="w-full rounded-2xl bg-red-600 py-3 font-semibold">
-                      ■ Stop & send ({secs.toFixed(1)}s / {status?.max_answer_seconds ?? 15}s)
+                      Stop and send ({secs.toFixed(1)}s / {status?.max_answer_seconds ?? 15}s)
                       <span className="mx-auto mt-1 block h-1 rounded bg-white/70" style={{ width: `${Math.max(4, level * 100)}%` }} />
                     </button>
                   ) : (
                     <>
                       <button onClick={answerScripted} className="w-full rounded-2xl bg-brand-600 px-3 py-2.5 text-left text-sm font-semibold hover:bg-brand-500">
-                        🎧 Play scripted answer
+                        Play scripted answer
                         {preview && <span className="indic mt-0.5 block text-xs font-normal text-brand-50/90">“{preview}”</span>}
                       </button>
-                      <button onClick={startRec} className="w-full rounded-2xl bg-slate-800 py-2.5 text-sm font-semibold hover:bg-slate-700">🎙️ Answer live with your voice</button>
+                      <button onClick={startRec} className="w-full rounded-2xl bg-slate-800 py-2.5 text-sm font-semibold hover:bg-slate-700">Answer with your own voice</button>
                       <form onSubmit={(e) => { e.preventDefault(); answerTyped() }} className="flex gap-1.5">
-                        <input value={typed} onChange={(e) => setTyped(e.target.value)} placeholder="…or type (हाँ ले ली)"
+                        <input value={typed} onChange={(e) => setTyped(e.target.value)} placeholder="Or type an answer, e.g. हाँ ले ली"
                           className="indic min-w-0 flex-1 rounded-xl bg-slate-800 px-3 py-2 text-sm outline-none placeholder:text-slate-500" />
-                        <button className="rounded-xl bg-slate-700 px-3 text-sm">↵</button>
+                        <button className="rounded-xl bg-slate-700 px-3 text-sm font-semibold">Send</button>
                       </form>
                     </>
                   )}
@@ -287,21 +287,21 @@ export default function PhoneSimulator({ status }: { status: AppStatus | null })
 
         <div className="card p-4">
           <h2 className="font-semibold">What the agent understood</h2>
-          {turns.filter((t) => t.u).length === 0 && <p className="mt-2 text-sm muted">Each answer appears here: transcript → extracted meaning → the rule that decides the next step.</p>}
+          {turns.filter((t) => t.u).length === 0 && <p className="mt-2 text-sm muted">Each answer shows up here: what Prisma heard, what Khurak understood, and the rule that picked the next step.</p>}
           <ol className="mt-2 space-y-3">
             {turns.filter((t) => t.u).map((t, i) => (
               <li key={i} className="rounded-xl border line p-3 text-sm">
                 <p className="indic">“{t.heard || '(silence)'}”</p>
                 <div className="mt-2 flex flex-wrap gap-1">
                   <Chip>dose: {t.u!.dose}</Chip>
-                  {t.u!.red_flags.map((r) => <Chip key={r} tone="red">🔴 {reasonLabel(r)}</Chip>)}
+                  {t.u!.red_flags.map((r) => <Chip key={r} tone="red">{reasonLabel(r)}</Chip>)}
                   {t.u!.negated.map((r) => <Chip key={r} tone="amber">said NOT: {reasonLabel(r)}</Chip>)}
                   {t.u!.benign.map((r) => <Chip key={r} tone="green">{reasonLabel(r)}</Chip>)}
                   {t.u!.watch.map((r) => <Chip key={r} tone="amber">{reasonLabel(r)}</Chip>)}
                   <Chip>confidence {Math.round(t.u!.confidence * 100)}%</Chip>
                   {t.stepRule && <Chip tone="violet">next: {t.stepRule}</Chip>}
                 </div>
-                {t.u!.evidence.length > 0 && <p className="indic mt-2 font-mono text-[11px] muted">{t.u!.evidence.join(' · ')}</p>}
+                {t.u!.evidence.length > 0 && <p className="indic mt-2 font-mono text-[11px] muted">{t.u!.evidence.join(', ')}</p>}
               </li>
             ))}
           </ol>
@@ -309,11 +309,11 @@ export default function PhoneSimulator({ status }: { status: AppStatus | null })
         <div className="card p-4 text-sm">
           <h2 className="font-semibold">Try it</h2>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-[13px] muted">
-            <li>Say <span className="indic">“हाँ ले ली, लेकिन आँखें पीली हो गई हैं”</span> → instant 🔴 escalation.</li>
-            <li>Say <span className="indic">“आँखें पीली नहीं हैं”</span> → Khurak asks a confirmation question instead of guessing.</li>
-            <li>Say <span className="indic">“पेशाब लाल आ रहा है”</span> → approved reassurance: orange urine is a normal rifampicin effect.</li>
-            <li>Mumble or talk about the weather → one follow-up, then 🟡 (never green when unsure).</li>
-            <li>Say <span className="indic">“हम्म… शायद ले ली थी”</span> or pause 3 s before answering → a hesitant yes is probed, never recorded as-is.</li>
+            <li>Say <span className="indic">“हाँ ले ली, लेकिन आँखें पीली हो गई हैं”</span> and the call escalates at once.</li>
+            <li>Say <span className="indic">“आँखें पीली नहीं हैं”</span> and Khurak asks one confirmation question instead of guessing.</li>
+            <li>Say <span className="indic">“पेशाब लाल आ रहा है”</span> and you hear the approved reassurance: orange urine is a normal rifampicin effect.</li>
+            <li>Talk about the weather and you get one follow-up question, then a follow-up flag. Unsure is never marked safe.</li>
+            <li>Say <span className="indic">“हम्म… शायद ले ली थी”</span>, or wait 3 seconds before answering, and the hesitant yes gets probed.</li>
           </ul>
         </div>
       </section>
