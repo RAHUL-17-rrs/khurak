@@ -6,6 +6,12 @@ Built on **Gnani Prisma v3.0** (speech-to-text) and **Gnani Timbre v3.0** (text-
 
 > All patients, names, phone numbers and voices in this repository are **synthetic**. This is a prototype, not a medical device; every spoken template needs clinician review before real use.
 
+## Try it
+
+- **[Live demo](https://khurak.vercel.app)** — explore the control room, patient phone, health-worker dashboard and evaluation
+- **[Watch the demo video](./docs/Khurak_demo.mp4)** — a short end-to-end walkthrough
+- **[Read the solution pitch](./docs/SUBMISSION.md)** — models used, architecture, safety design and evaluation results
+
 ---
 
 ## Why
