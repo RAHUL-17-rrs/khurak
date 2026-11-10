@@ -125,3 +125,63 @@ def test_long_pause_counts_as_hesitation():
 def test_confident_yes_not_probed():
     _, trace = simulate("hi-IN", {"ask_dose": "हाँ ले ली", "ask_symptoms": "सब ठीक है"})
     assert "probe_dose" not in [t["stage"] for t in trace]
+
+
+# R0: "I couldn't hear you" is a request to repeat, never an answer ("सुनाई नहीं दिया" was read as MISSED)
+@pytest.mark.parametrize("lang,text", [
+    ("hi-IN", "सुनाई नहीं दिया"), ("hi-IN", "समझ नहीं आया, फिर से बोलिए"), ("mr-IN", "ऐकू आलं नाही"),
+    ("bn-IN", "শুনতে পাইনি"), ("kn-IN", "ಕೇಳಿಸಲಿಲ್ಲ"), ("hi-en", "sorry didn't hear"),
+])
+def test_repeat_request_is_not_an_answer(lang, text):
+    u = classify(text, lang, "ask_dose")
+    assert u.repeat and u.dose == "UNCLEAR" and not u.deny
+
+
+def test_repeat_replays_question_and_keeps_followup():
+    from app.dialogue import Dialogue
+    d = Dialogue("hi-IN", "Test", use_evon=False)
+    d.opening()
+    out = d.answer("सुनाई नहीं दिया")
+    assert out.step_rule == "R0" and out.next_prompt.key == "ask_dose" and d.stage == "ask_dose"
+    assert d.mem.turns == 0 and not d.mem.followup_asked
+    # the replay survives the serverless state round-trip
+    d = Dialogue.from_state(d.to_state(), use_evon=False)
+    d.answer("हाँ ले ली")
+    d.answer("कोई तकलीफ नहीं")
+    assert d.decision.status == "GREEN"
+
+
+def test_repeat_is_bounded():
+    d, trace = simulate("hi-IN", {"ask_dose": "सुनाई नहीं दिया"})
+    assert d.status == "AMBER" and len(trace) <= 4
+
+
+def test_repeat_word_with_content_is_an_answer():
+    d, _ = simulate("hi-IN", {"ask_dose": "हाँ ले ली", "ask_symptoms": "फिर से बार बार उल्टी हुई"})
+    assert d.status == "RED"
+
+
+# R3a: "should I stop the medicine?" with no reassuring explanation is flagged, never GREEN
+def test_asking_about_stopping_is_flagged():
+    d, _ = simulate("hi-IN", {"ask_dose": "दवा बंद कर दूँ क्या?", "followup_dose": "हाँ ले ली", "ask_symptoms": "नहीं"})
+    assert d.status == "AMBER" and d.rule == "R3a"
+
+
+# "I'm not well" is a watch symptom, not an unexplained low-confidence answer
+@pytest.mark.parametrize("lang,text", [
+    ("hi-IN", "मैं ठीक नहीं हूँ"), ("hi-IN", "तबीयत ठीक नहीं है"), ("mr-IN", "बरं वाटत नाही"),
+    ("bn-IN", "শরীর ভালো নেই"), ("kn-IN", "ಹುಷಾರಿಲ್ಲ"), ("hi-en", "not feeling well"),
+])
+def test_unwell_is_flagged(lang, text):
+    d, _ = simulate(lang, {"ask_dose": {"mr-IN": "घेतली", "bn-IN": "খেয়েছি", "kn-IN": "ಹೌದು"}.get(lang, "हाँ ले ली"),
+                           "ask_symptoms": text})
+    assert d.status == "AMBER" and "unwell" in d.reasons
+
+
+@pytest.mark.parametrize("lang,text", [
+    ("hi-IN", "ठीक है"), ("hi-IN", "नहीं, ठीक हूँ"), ("mr-IN", "बरं आहे"), ("bn-IN", "ভালো আছি"), ("kn-IN", "ಚೆನ್ನಾಗಿದ್ದೇನೆ"),
+])
+def test_fine_is_still_green(lang, text):
+    d, _ = simulate(lang, {"ask_dose": {"mr-IN": "घेतली", "bn-IN": "খেয়েছি", "kn-IN": "ಹೌದು"}.get(lang, "हाँ ले ली"),
+                           "ask_symptoms": text})
+    assert d.status == "GREEN"

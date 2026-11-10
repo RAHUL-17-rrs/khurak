@@ -13,6 +13,7 @@ from .policy import CallMemory, Decision, absorb, final_decision, next_step
 from .prompts import render, render_en
 
 MAX_TURNS = 6
+MAX_REPEATS = 2             # "please say that again" replays the question, at most twice per call
 HESITATION_PAUSE_MS = 2500   # a long silence before "yes" is a hesitation signal (cf. Tell)
 
 
@@ -45,6 +46,10 @@ class Dialogue:
         self.use_evon = use_evon and evon.enabled()
         self.decision: Decision | None = None
         self.last_prompt_en = ""
+        self.last_key: str | None = None      # the question on the line, so it can be replayed (R0)
+        self.last_vars: dict = {}
+        self.repeats = 0
+        self.repeated_stage: str | None = None
 
     def prompt(self, key: str, **vars) -> Prompt:
         p = Prompt(key, render(key, self.lang, **vars), render_en(key, **vars), vars)
@@ -53,13 +58,17 @@ class Dialogue:
     # --- stateless hosting (Vercel): the whole call state round-trips through the client, signed
     def to_state(self) -> dict:
         return {"lang": self.lang, "name": self.name, "kind": self.kind, "stage": self.stage,
-                "mem": self.mem.to_dict(), "last_prompt_en": self.last_prompt_en}
+                "mem": self.mem.to_dict(), "last_prompt_en": self.last_prompt_en,
+                "last_key": self.last_key, "last_vars": self.last_vars, "repeats": self.repeats,
+                "repeated_stage": self.repeated_stage}
 
     @classmethod
     def from_state(cls, st: dict, use_evon: bool = True) -> "Dialogue":
         d = cls(st["lang"], st["name"], st["kind"], use_evon=use_evon)
         d.stage, d.last_prompt_en = st["stage"], st.get("last_prompt_en", "")
         d.mem = CallMemory.from_dict(st["mem"])
+        d.last_key, d.last_vars = st.get("last_key"), st.get("last_vars") or {}
+        d.repeats, d.repeated_stage = st.get("repeats", 0), st.get("repeated_stage")
         return d
 
     def opening(self) -> list[Prompt]:
@@ -68,6 +77,7 @@ class Dialogue:
         else:
             ps = [self.prompt("greeting", name=self.name), self.prompt("ask_dose")]
         self.last_prompt_en = ps[-1].english
+        self.last_key, self.last_vars = ps[-1].key, ps[-1].vars
         return ps
 
     def closing(self) -> list[Prompt]:
@@ -80,6 +90,17 @@ class Dialogue:
         if onset_ms is not None and onset_ms >= HESITATION_PAUSE_MS and transcript.strip():
             u.hesitant = True
             u.evidence.append(f"pause={onset_ms}ms before answering")
+
+        # R0: "I couldn't hear you" is not an answer. Replay the same question instead of reading
+        # "सुनाई नहीं दिया" as "नहीं" (missed) or spending the single follow-up on it.
+        if (u.repeat and not _substantive(u) and self.last_key and self.repeats < MAX_REPEATS
+                and self.repeated_stage != stage):
+            self.repeats += 1
+            self.repeated_stage = stage
+            u.evidence.append("asked to repeat -> question replayed")
+            p = self.prompt(self.last_key, **self.last_vars)
+            return TurnOutcome(stage, u, None, p, "R0", None)
+
         absorb(self.mem, stage, u)
 
         opinion = None
@@ -97,7 +118,14 @@ class Dialogue:
         self.stage = step.stage
         p = self.prompt(step.prompt, **step.prompt_vars)
         self.last_prompt_en = p.english
+        self.last_key, self.last_vars = p.key, p.vars
         return TurnOutcome(stage, u, opinion, p, step.rule, None)
+
+
+def _substantive(u: Understanding) -> bool:
+    """Did the answer carry real information (beyond a bare yes/no)?"""
+    return bool(u.dose != "UNCLEAR" or u.red_flags or u.negated or u.benign or u.watch or u.no_problem
+                or u.away or u.asked_about_stopping)
 
 
 def simulate(lang: str, answers: dict[str, str], kind: str = "patient", name: str = "Test",

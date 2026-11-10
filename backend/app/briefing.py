@@ -19,6 +19,7 @@ REASON_HI = {
     "unspecified_problem": "कोई तकलीफ़ बताई है", "vomiting": "उल्टी हुई", "stomach_pain": "पेट दर्द",
     "tingling": "हाथ पैर में झुनझुनी", "joint_pain": "जोड़ों में दर्द",
     "missed_recent_doses": "पिछले तीन दिनों में खुराक छूटी",
+    "unwell": "तबीयत ठीक नहीं बताई", "asked_about_stopping": "दवा बंद करने के बारे में पूछा",
 }
 REASON_EN = {
     "yellow_eyes": "yellow eyes", "blood_cough": "blood in cough", "persistent_vomit": "repeated vomiting",
@@ -31,6 +32,7 @@ REASON_EN = {
     "unspecified_problem": "reported a problem", "vomiting": "vomited", "stomach_pain": "stomach pain",
     "tingling": "tingling in hands/feet", "joint_pain": "joint pain",
     "missed_recent_doses": "missed doses in the last 3 days",
+    "unwell": "says they feel unwell", "asked_about_stopping": "asked whether to stop the medicine",
 }
 
 

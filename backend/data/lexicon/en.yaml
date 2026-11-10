@@ -21,3 +21,6 @@ question: ["should", "what"]
 unsure: ["don't know", "not sure", "later"]
 # hesitation markers: scanned separately (never mask other matches) - a hesitant 'yes' gets probed
 hesitation: ["hmm", "umm", "maybe", "i think", "not sure"]
+watch:
+  unwell: ["not feeling well", "not well", "unwell", "feeling sick"]
+repeat: ["say again", "say that again", "didnt hear", "cant hear", "cannot hear", "didnt understand", "dont understand", "pardon", "repeat"]

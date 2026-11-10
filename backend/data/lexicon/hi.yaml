@@ -19,6 +19,7 @@ watch:
   stomach_pain: ["पेट दर्द", "पेट में दर्द", "पेट दुख", "pet dard", "stomach pain"]
   tingling: ["झुनझुनी", "सुन्न", "jhunjhuni", "numbness", "tingling"]
   joint_pain: ["जोड़ों में दर्द", "जोड़ों का दर्द", "जोड़ दर्द", "joint pain"]
+  unwell: ["तबीयत ठीक नहीं", "तबियत ठीक नहीं", "ठीक नहीं लग रहा", "ठीक नहीं हूं", "ठीक नहीं", "अच्छा नहीं लग रहा", "tabiyat theek nahi", "theek nahi"]
 affirm: ["हाँ", "हां", "हा", "जी", "जी हाँ", "हम्म हाँ", "haan", "han", "haa", "ha", "ji", "yes", "hmm haan"]
 deny: ["नहीं", "नही", "ना", "nahi", "nahin", "nai", "na", "no", "nope"]
 no_problem: ["कोई तकलीफ़ नहीं", "कोई तकलीफ नहीं", "कोई दिक्कत नहीं", "कोई परेशानी नहीं", "सब ठीक", "सब ठीक है", "ठीक हूँ", "ठीक हूं", "ठीक है", "कुछ नहीं", "kuch nahi", "sab theek", "theek hoon", "theek hai", "koi problem nahi", "koi taklif nahi", "no problem", "all good", "fine"]
@@ -27,3 +28,5 @@ question: ["क्या", "kya", "क्यों"]
 unsure: ["पता नहीं", "मालूम नहीं", "याद नहीं", "pata nahi", "maloom nahi", "yaad nahi", "बाद में", "टाइम नहीं", "time nahi"]
 # hesitation markers: scanned separately (never mask other matches) - a hesitant 'yes' gets probed
 hesitation: ["हम्म", "अं", "उम्म", "उम", "शायद", "लगता है", "पक्का नहीं", "याद नहीं", "hmm", "umm", "shayad", "lagta hai", "maybe", "i think"]
+# patient asked to hear the question again (replayed once, never classified as an answer)
+repeat: ["सुनाई नहीं दिया", "सुनाई नहीं दे रहा", "सुनाई नहीं दी", "आवाज़ नहीं आ रही", "आवाज नहीं आ रही", "समझ नहीं आया", "समझ नहीं आई", "फिर से बोलिए", "फिर से बोलो", "दोबारा बोलिए", "दोबारा बोलो", "क्या बोला", "क्या कहा", "फिर से", "दोबारा", "sunai nahi diya", "samajh nahi aaya", "phir se boliye", "dobara boliye", "kya bola", "kya kaha", "phir se", "dobara"]

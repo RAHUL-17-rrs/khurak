@@ -22,6 +22,7 @@ import sys
 import time
 from collections import defaultdict, deque
 from pathlib import Path
+from typing import Literal
 
 os.environ.setdefault("KHURAK_STORE", "/tmp/khurak")
 ROOT = Path(__file__).resolve().parent.parent
@@ -67,7 +68,13 @@ def _verify(token: str) -> dict:
         raise HTTPException(400, "bad call state")
     if not hmac.compare_digest(sig, hmac.new(SECRET, raw.encode(), hashlib.sha256).hexdigest()[:32]):
         raise HTTPException(400, "call state signature mismatch")
-    return json.loads(base64.urlsafe_b64decode(raw.encode()))
+    try:
+        st = json.loads(base64.urlsafe_b64decode(raw.encode()))
+    except ValueError:
+        raise HTTPException(400, "bad call state")
+    if not isinstance(st, dict) or st.get("pid") not in PATIENTS:
+        raise HTTPException(400, "bad call state")
+    return st
 
 
 def _rate_limit(ip: str) -> None:
@@ -111,7 +118,7 @@ def status():
 
 class Start(BaseModel):
     patient_id: str
-    kind: str = "patient"
+    kind: Literal["patient", "family"] = "patient"
 
 
 @app.post("/api/live/start")

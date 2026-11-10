@@ -64,6 +64,7 @@ class Understanding:
     asked_about_stopping: bool = False
     unsure: bool = False
     hesitant: bool = False
+    repeat: bool = False                  # "सुनाई नहीं दिया" / "फिर से बोलिए": asked to hear the question again
     confidence: float = 0.0
     evidence: list[str] = field(default_factory=list)
 
@@ -132,7 +133,7 @@ def load_lexicon(lang: str) -> dict:
     return {k: sorted(v, key=len, reverse=True) for k, v in out.items()}
 
 
-MATCH_CATS_PREFIX = ("dose_", "red:", "benign:", "watch:", "vomit", "away", "no_problem", "affirm", "deny", "unsure")
+MATCH_CATS_PREFIX = ("dose_", "red:", "benign:", "watch:", "vomit", "away", "no_problem", "affirm", "deny", "unsure", "repeat")
 PHONETIC_LANGS = {"hi-IN", "hi-en", "mr-IN"}
 
 
@@ -276,6 +277,8 @@ def classify(transcript: str, lang: str, stage: str = "ask_dose") -> Understandi
                 u.watch.append("vomiting")
         elif cat.startswith("benign:") and not neg:
             u.benign.append(cat[7:])
+        elif cat == "watch:unwell":
+            u.watch.append("unwell")          # "ठीक नहीं हूँ" carries its own negation; never dropped
         elif cat.startswith("watch:") and not neg:
             u.watch.append(cat[6:])
         elif cat == "away":
@@ -291,6 +294,8 @@ def classify(transcript: str, lang: str, stage: str = "ask_dose") -> Understandi
                 u.evidence[-1] += " (ignored: not leading)"
         elif cat == "unsure":
             u.unsure = True
+        elif cat == "repeat":
+            u.repeat = True
 
     # a symptom both asserted and negated -> treat as asserted (safety first)
     u.negated = [s for s in dict.fromkeys(u.negated) if s not in u.red_flags]

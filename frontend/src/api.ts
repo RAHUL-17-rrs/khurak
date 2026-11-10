@@ -152,5 +152,6 @@ export const REASON: Record<string, string> = {
   home_visit_needed: 'Home visit needed', unspecified_problem: 'Reported a problem', vomiting: 'Vomited once',
   stomach_pain: 'Stomach pain', tingling: 'Tingling', joint_pain: 'Joint pain', no_answer: 'No answer',
   missed_recent_doses: 'Missed doses in last 3 days', hesitant: 'Hesitant answer',
+  unwell: 'Feels unwell', asked_about_stopping: 'Asked about stopping',
 }
 export const reasonLabel = (r: string) => r.split(/[+,]/).filter(Boolean).map((x) => REASON[x.replace('evon:', '')] ?? x.replace(/_/g, ' ')).join(' + ')

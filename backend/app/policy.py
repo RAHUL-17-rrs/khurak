@@ -11,6 +11,7 @@ Hard safety invariants (tested in tests/test_policy.py):
   I4  The Evon second-listener can only ADD concern (-> AMBER review), never remove it.
   I5  Patients only ever hear fixed templates from prompts.py.
   I6  A hesitant "yes" is never recorded as GREEN without one probe question (R5b).
+  I7  "Should I stop the medicine?" is always answered: by a reassurance template (R7) or by flagging the worker (R3a).
 """
 from __future__ import annotations
 
@@ -24,6 +25,8 @@ RULES = {
     "R1": "Red-flag symptom reported -> escalate to health worker now",
     "R2": "Danger word said with negation -> ask one confirmation question",
     "R3": "Patient stopped treatment -> 'complete the course' + flag worker",
+    "R0": "Patient asked to hear the question again -> replay it (once per question, max 2 per call); not counted as an answer",
+    "R3a": "Patient asked whether to stop the medicine (no reassurance template answers it) -> 'please continue' + flag worker",
     "R4": "Dose still unclear after one follow-up -> flag worker",
     "R5": "Dose unclear (first time) -> ask one follow-up",
     "R5b": "Hesitant 'yes' (filler words / long pause) -> one probe about recent missed doses; an unsure yes is never recorded as-is",
@@ -63,6 +66,7 @@ class CallMemory:
     hesitation: list[str] = field(default_factory=list)
     probe_asked: bool = False
     recent_missed: bool = False
+    asked_stopping: bool = False
     min_conf: float = 1.0
     quotes: list[str] = field(default_factory=list)
     evon_concerns: list[dict] = field(default_factory=list)
@@ -153,6 +157,7 @@ def absorb(mem: CallMemory, stage: str, u: Understanding) -> None:
     mem.benign += u.benign
     mem.watch += u.watch
     mem.away |= u.away
+    mem.asked_stopping |= u.asked_about_stopping
     for attr in ("red_flags", "benign", "watch", "pending_confirm"):
         setattr(mem, attr, list(dict.fromkeys(getattr(mem, attr))))
     mem.pending_confirm = [s for s in mem.pending_confirm if s not in mem.red_flags]
@@ -236,6 +241,11 @@ def final_decision(mem: CallMemory) -> Decision:
     if mem.min_conf < 0.5 or mem.dose_conf < 0.5:                         # R9 (I2)
         return d(AMBER, "R9", ["low_confidence"], ["unclear_close"],
                  [{"tool": "flag_worker", "reason": "low_confidence", "quote": quote}])
+
+    if mem.asked_stopping and not mem.benign:                             # R3a (I7)
+        # with a benign side effect the reassurance template already says "keep taking it" (R7)
+        return d(AMBER, "R3a", ["asked_about_stopping"], ["symptom_ack"],
+                 [{"tool": "flag_worker", "reason": "asked_about_stopping", "quote": quote}])
 
     if mem.benign:                                                        # R7
         return d(GREEN, "R7", mem.benign, [f"reassure_{mem.benign[0]}", "thanks"],

@@ -28,7 +28,9 @@ Built on **Gnani Prisma v3.0** (speech-to-text) and **Gnani Timbre v3.0** (text-
 | **Hesitant "yes"** ("हम्म… शायद ले ली थी", "বোধহয় খেয়েছি", or a 2.5 s pause before answering) | asks **one probe**: "did you miss any dose in the last 3 days?" An unsure yes is never recorded as-is |
 | Danger sign (yellow eyes/skin, blood in cough, repeated vomiting, breathlessness, blurred vision, rash) | 🔴 **escalates immediately** with the patient's exact words, advises hospital / 108 |
 | Danger word **with negation** ("आँखें पीली **नहीं** हैं") | asks a **confirmation** question, never guesses |
-| "Should I stop the medicine?" (a question) | not mistaken for "I stopped" |
+| "Should I stop the medicine?" (a question) | not mistaken for "I stopped"; answered by the reassurance template, or 🟡 flagged if nothing explains the worry |
+| "सुनाई नहीं दिया" / "ಕೇಳಿಸಲಿಲ್ಲ" (*I couldn't hear you*) | **replays the question** (max 2 per call). Before this fix, "सुनाई **नहीं** दिया" was read as "नहीं" = missed dose |
+| "मैं ठीक नहीं हूँ" / "শরীর ভালো নেই" (*I'm not well*) | 🟡 flagged as `unwell` with the patient's words, not as a vague low-confidence answer |
 | No answer | retries (max 2), then **calls the family contact** |
 | 3 days without a confirmed dose | 🟡 **home visit needed** |
 | Every morning | a **spoken briefing** for the health worker in Hindi |
@@ -73,7 +75,8 @@ Timbre v3.0 template ──► patient on an 8 kHz line ──► Prisma v3.0 (k
 4. Questions ("दवा बंद कर दूँ क्या?") are not statements.
 5. Patients only hear fixed templates. No generated text ever reaches a patient.
 6. The LLM (Evon) can only escalate to human review; it can never lower a status.
-7. A hesitant "yes" is never recorded as GREEN without one probe question. Self-reported adherence overstates the truth, which is exactly where 99DOTS loses accuracy.
+7. "Should I stop the medicine?" is always answered: by a reassurance template, or by flagging the health worker (R3a).
+8. A hesitant "yes" is never recorded as GREEN without one probe question. Self-reported adherence overstates the truth, which is exactly where 99DOTS loses accuracy.
 
 **Engineering details worth a look:**
 - **Script-agnostic phonetic matching** (`app/translit.py`). Prisma's `codemix` output can switch script *mid-phrase* ("मैंने **dawai band** कर दी"). Devanagari and Latin are keyed phonetically (schwa deletion, nasal and vowel folding), so "बंद कर दी", "band kar di" and "band कर दी" all match.
