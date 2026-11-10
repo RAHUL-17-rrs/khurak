@@ -98,3 +98,30 @@ def test_orange_urine_reassured_green():
 def test_family_away_is_amber():
     d, _ = simulate("kn-IN", {"family_check": "ಅಮ್ಮ ಊರಿಗೆ ಹೋಗಿದ್ದಾರೆ, ಮಾತ್ರೆ ತೆಗೆದುಕೊಂಡು ಹೋಗಿಲ್ಲ"}, kind="family")
     assert d.status == "AMBER" and d.rule == "F2"
+
+
+# I6: a hesitant "yes" is never recorded as GREEN without one probe (inspired by "Tell")
+@pytest.mark.parametrize("lang,text", [
+    ("hi-IN", "हम्म... हाँ, शायद ले ली थी"), ("mr-IN", "बहुतेक घेतली"),
+    ("bn-IN", "বোধহয় খেয়েছি"), ("kn-IN", "ಬಹುಶಃ ತೆಗೆದುಕೊಂಡೆ"), ("hi-en", "hmm haan le li thi"),
+])
+def test_hesitant_yes_is_probed(lang, text):
+    d, trace = simulate(lang, {"ask_dose": text})
+    assert "probe_dose" in [t["stage"] for t in trace]
+    assert d.status == "AMBER"          # silence at the probe -> never green
+
+
+def test_long_pause_counts_as_hesitation():
+    from app.dialogue import Dialogue
+    dlg = Dialogue("hi-IN", "Test")
+    dlg.opening()
+    out = dlg.answer("हाँ ले ली", onset_ms=3200)
+    assert out.next_prompt and out.next_prompt.key == "probe_dose"
+    out = Dialogue("hi-IN", "Test")
+    out.opening()
+    assert out.answer("हाँ ले ली", onset_ms=600).next_prompt.key == "ask_symptoms"
+
+
+def test_confident_yes_not_probed():
+    _, trace = simulate("hi-IN", {"ask_dose": "हाँ ले ली", "ask_symptoms": "सब ठीक है"})
+    assert "probe_dose" not in [t["stage"] for t in trace]

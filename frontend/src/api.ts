@@ -1,4 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
+import { bus, staticApi } from './staticApi'
+
+/** Built with VITE_STATIC=1 for Vercel: recorded-round replay + serverless live phone. */
+export const STATIC = import.meta.env.VITE_STATIC === '1'
 
 export type Status = 'GREEN' | 'AMBER' | 'RED' | 'NO_ANSWER'
 
@@ -22,7 +26,7 @@ export interface TraceTurn {
 export interface Trace {
   call_id: string; patient: string; language: string; kind: string; day: number; turns: TraceTurn[]
   policy_rule: string; status: Status; reasons: string[]; actions: string[]; mode: string
-  latency_ms: { stt_avg: number; total: number }; memory?: Record<string, unknown>
+  latency_ms: { stt_avg: number; total: number }; memory?: Record<string, unknown>; audio_sequence?: string[]
 }
 export interface Call {
   id: string; patient_id: string; day: number; attempt: number; kind: string; state: string; status: Status | null
@@ -39,7 +43,7 @@ export interface Alert {
   city: string; age: number
 }
 export interface StepResult {
-  call_id: string; closed: boolean; stage?: string; agent_audio: string; agent_text: string; agent_english: string
+  call_id: string; closed: boolean; stage?: string; agent_audio: string; agent_audios?: string[]; agent_text: string; agent_english: string
   tts_mock?: boolean; transcript?: string; understanding?: Understanding; stt_ms?: number; stt_mock?: boolean
   patient_audio?: string | null; status?: Status; rule?: string; rule_text?: string; reasons?: string[]
   trace?: Trace; step_rule?: string | null; evon?: unknown
@@ -51,6 +55,7 @@ export interface AppStatus {
   worker: { name: string; role: string; centre: string; language: string }
   languages: Record<string, string>; noise_kinds: string[]; max_answer_seconds: number
   api_stats?: { stt_calls: number; tts_calls: number; retries: number }
+  hosted?: boolean; recorded_at?: string
 }
 
 async function j<T>(r: Response): Promise<T> {
@@ -64,7 +69,7 @@ async function j<T>(r: Response): Promise<T> {
 const post = (url: string, body?: unknown) =>
   fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined })
 
-export const api = {
+const serverApi = {
   status: () => fetch('/api/status').then(j<AppStatus>),
   patients: () => fetch('/api/patients').then(j<Patient[]>),
   patient: (id: string) => fetch(`/api/patients/${id}`).then(j<Patient & { calls: Call[]; alerts: Alert[]; calendar: { day: number; status: Status; note: string; call_id: string }[]; day: number }>),
@@ -93,6 +98,8 @@ export const api = {
   policy: () => fetch('/api/policy').then(j<{ rules: Record<string, string>; templates: Record<string, Record<string, string>>; english: Record<string, string> }>),
 }
 
+export const api: typeof serverApi = STATIC ? (staticApi as unknown as typeof serverApi) : serverApi
+
 export interface Metrics {
   n: number; status_acc: number; rule_acc: number; red_recall: number | null; red_n: number; false_green: number
   false_green_rate: number; red_to_green: number; over_escalation: number; cer?: number | null; stt_ms_avg?: number | null
@@ -112,6 +119,10 @@ export function useEvents(onEvent: (e: KEvent) => void) {
   cb.current = onEvent
   const [connected, setConnected] = useState(false)
   useEffect(() => {
+    if (STATIC) {
+      setConnected(true)
+      return bus.on((e) => cb.current(e))
+    }
     let es: EventSource | null = null
     let stop = false
     const open = () => {
@@ -140,5 +151,6 @@ export const REASON: Record<string, string> = {
   family_reports_away_or_missed: 'Away without medicines (family)', patient_unreachable_family_contacted: 'Unreachable; family contacted',
   home_visit_needed: 'Home visit needed', unspecified_problem: 'Reported a problem', vomiting: 'Vomited once',
   stomach_pain: 'Stomach pain', tingling: 'Tingling', joint_pain: 'Joint pain', no_answer: 'No answer',
+  missed_recent_doses: 'Missed doses in last 3 days', hesitant: 'Hesitant answer',
 }
 export const reasonLabel = (r: string) => r.split(/[+,]/).filter(Boolean).map((x) => REASON[x.replace('evon:', '')] ?? x.replace(/_/g, ' ')).join(' + ')

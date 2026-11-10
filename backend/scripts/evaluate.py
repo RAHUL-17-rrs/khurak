@@ -94,7 +94,7 @@ def main():
                     heard[stage] = ref
                     continue
                 wav, clip, _ = voices.patient_clip(text, it["lang"], it["voice"], cond["kind"], cond["snr_db"])
-                key = f"{clip}|{boost}"
+                key = f"{clip}|{boost}|{gnani.keyterms_signature(it['lang']) if boost else 'none'}"
                 if key not in cache:
                     r = gnani.transcribe(wav, it["lang"], boost=boost)
                     cache[key] = {"t": r.transcript, "ms": r.latency_ms}

@@ -15,6 +15,12 @@ All evaluation audio was band-limited to 300–3400 Hz, resampled to 8 kHz and �
 4. Timbre's 8 kHz output and audio tags made realistic test patients possible without any real recordings.
 5. Programme keys allow one concurrent request, so every call is serialised behind a lock with backoff, and all prompts are pre-cached.
 
+**What did you look at in other projects, and what did you change?**
+I read the closest entries before the final push. *Tell* (an AssemblyAI hackathon project) refuses to record a "yes" the patient didn't sound sure of. That is the core weakness of self-reported adherence, and of 99DOTS. So Khurak gained rule R5b: hesitation words in all five languages ("हम्म", "शायद", "बहुतेक", "বোধহয়", "ಬಹುಶಃ") or a 2.5 s pause before answering trigger one probe, "did you miss any dose in the last three days?". One run shows why it matters: Prisma heard "परसों" (day before yesterday) as "purse", and the probe still caught the missed dose. From CallLens and Naadi I took credit protection for the public demo. I also added the *negative* dose forms ("ತೆಗೆದುಕೊಂಡಿಲ್ಲ", "नहीं ली") to Prisma's keyterms, after my one unsafe miss.
+
+**How is it deployed?**
+Vercel is serverless, so the hosted build replays a round recorded live against Gnani for the dashboards, and the Patient phone runs live through a stateless function. The call state travels with the browser, HMAC-signed, and prompts are pre-rendered Timbre audio, so the function only calls Prisma.
+
 **What happens when the speech recogniser is wrong?**
 It fails safe by design. Low confidence goes to AMBER, never GREEN. A negated danger word triggers a confirmation question. The evaluation lists every miss and its direction; over-escalation (green heard as red) is the acceptable failure.
 

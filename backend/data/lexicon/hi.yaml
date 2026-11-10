@@ -25,3 +25,5 @@ no_problem: ["कोई तकलीफ़ नहीं", "कोई तकल�
 negation: ["नहीं", "नही", "ना", "न", "मत", "nahi", "nahin", "nai", "na", "no", "not", "never"]
 question: ["क्या", "kya", "क्यों"]
 unsure: ["पता नहीं", "मालूम नहीं", "याद नहीं", "pata nahi", "maloom nahi", "yaad nahi", "बाद में", "टाइम नहीं", "time nahi"]
+# hesitation markers: scanned separately (never mask other matches) - a hesitant 'yes' gets probed
+hesitation: ["हम्म", "अं", "उम्म", "उम", "शायद", "लगता है", "पक्का नहीं", "याद नहीं", "hmm", "umm", "shayad", "lagta hai", "maybe", "i think"]

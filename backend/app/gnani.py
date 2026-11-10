@@ -36,13 +36,13 @@ TOPIC = (
 # yes/no words that phone answers are made of, in all supported languages.
 KEYTERMS: dict[str, list[str]] = {
     "common": ["TB", "टीबी", "Rifampicin", "Isoniazid", "Ethambutol", "Pyrazinamide", "108"],
-    "hi-IN": ["दवा", "गोली", "हाँ", "नहीं", "ले ली", "पीलिया", "पीली", "उल्टी", "खून",
+    "hi-IN": ["नहीं ली", "भूल गया", "छूट गई", "शायद", "दवा", "गोली", "हाँ", "नहीं", "ले ली", "पीलिया", "पीली", "उल्टी", "खून",
               "खांसी", "पेशाब", "लाल", "नारंगी", "सांस", "धुंधला", "दाने", "खुजली", "बंद कर दी"],
-    "mr-IN": ["गोळी", "औषध", "होय", "हो", "नाही", "घेतली", "पिवळे", "उलटी", "रक्त", "खोकला",
+    "mr-IN": ["घेतली नाही", "विसरलो", "चुकली", "बहुतेक", "गोळी", "औषध", "होय", "हो", "नाही", "घेतली", "पिवळे", "उलटी", "रक्त", "खोकला",
               "लघवी", "लाल", "नारिंगी", "दम", "धूसर", "पुरळ", "बंद केली"],
-    "bn-IN": ["ওষুধ", "ট্যাবলেট", "হ্যাঁ", "না", "খেয়েছি", "খাইনি", "হলুদ", "জন্ডিস", "বমি", "রক্ত",
+    "bn-IN": ["খাইনি", "ভুলে গেছি", "বাদ পড়েছে", "বোধহয়", "ওষুধ", "ট্যাবলেট", "হ্যাঁ", "না", "খেয়েছি", "খাইনি", "হলুদ", "জন্ডিস", "বমি", "রক্ত",
               "কাশি", "প্রস্রাব", "লাল", "কমলা", "শ্বাসকষ্ট", "ঝাপসা", "চুলকানি", "বন্ধ করে দিয়েছি"],
-    "kn-IN": ["ಮಾತ್ರೆ", "ಹೌದು", "ಇಲ್ಲ", "ತೆಗೆದುಕೊಂಡೆ", "ಹಳದಿ", "ವಾಂತಿ", "ರಕ್ತ", "ಕೆಮ್ಮು",
+    "kn-IN": ["ತೆಗೆದುಕೊಂಡಿಲ್ಲ", "ತಗೊಂಡಿಲ್ಲ", "ಮರೆತೆ", "ಬಹುಶಃ", "ಮಾತ್ರೆ", "ಹೌದು", "ಇಲ್ಲ", "ತೆಗೆದುಕೊಂಡೆ", "ಹಳದಿ", "ವಾಂತಿ", "ರಕ್ತ", "ಕೆಮ್ಮು",
               "ಮೂತ್ರ", "ಕೆಂಪು", "ಉಸಿರು", "ಮಸುಕು", "ತುರಿಕೆ", "ನಿಲ್ಲಿಸಿದೆ"],
 }
 
@@ -105,6 +105,11 @@ def _post(who: str, url: str, timeout: float, **kw) -> tuple[httpx.Response, int
 def stt_language_code(lang: str) -> str:
     """Patients pick their language. Hinglish speakers get hi-IN + en-IN candidates."""
     return "hi-IN,en-IN" if lang == "hi-en" else lang
+
+
+def keyterms_signature(lang: str) -> str:
+    """Changes whenever the boosting setup changes (used to invalidate cached evaluations)."""
+    return hashlib.sha1(json.dumps([keyterms_for(lang), TOPIC], ensure_ascii=False).encode()).hexdigest()[:8]
 
 
 def keyterms_for(lang: str) -> list[str]:

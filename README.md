@@ -25,6 +25,7 @@ Built on **Gnani Prisma v3.0** (speech-to-text) and **Gnani Timbre v3.0** (text-
 | "I feel fine, I stopped the pills" | 🟡 "complete the course" + flags the worker |
 | Missed dose | 🟡 acknowledges + flags |
 | Unclear answer | asks **one** follow-up, then 🟡 (**never green when unsure**) |
+| **Hesitant "yes"** ("हम्म… शायद ले ली थी", "বোধহয় খেয়েছি", or a 2.5 s pause before answering) | asks **one probe**: "did you miss any dose in the last 3 days?" An unsure yes is never recorded as-is |
 | Danger sign (yellow eyes/skin, blood in cough, repeated vomiting, breathlessness, blurred vision, rash) | 🔴 **escalates immediately** with the patient's exact words, advises hospital / 108 |
 | Danger word **with negation** ("आँखें पीली **नहीं** हैं") | asks a **confirmation** question, never guesses |
 | "Should I stop the medicine?" (a question) | not mistaken for "I stopped" |
@@ -36,20 +37,22 @@ Built on **Gnani Prisma v3.0** (speech-to-text) and **Gnani Timbre v3.0** (text-
 
 ## Results (measured, not claimed)
 
-`backend/scripts/evaluate.py` runs **48 scripted synthetic calls** through the full production path:
-Timbre v3.0 voice (all 13 Timbre v3.0 speakers, with audio tags like `<coughs>`) → background noise at a target SNR → **300–3400 Hz band-pass → 8 kHz → G.711 μ-law** (a real phone line) → **Prisma v3.0** → classifier → policy. **485 real Prisma transcriptions.**
+`backend/scripts/evaluate.py` runs **52 scripted synthetic calls** through the full production path:
+Timbre v3.0 voice (all 13 Timbre v3.0 speakers, with audio tags like `<coughs>`) → background noise at a target SNR → **300–3400 Hz band-pass → 8 kHz → G.711 μ-law** (a real phone line) → **Prisma v3.0** → classifier → policy. **550 real Prisma transcriptions.**
 
-| Line condition | Status accuracy | **Red-flag recall** | Danger sign marked GREEN | Prisma CER | STT latency |
+| Line condition | Status accuracy | **Red-flag recall** | False GREEN | Prisma CER | STT latency |
 |---|---|---|---|---|---|
-| Clean phone line | 100% | **100%** | 0 | 7.8% | 695 ms |
-| Street traffic, 15 dB SNR | 100% | **100%** | 0 | 5.4% | 704 ms |
-| Crowd babble, 10 dB SNR | 95.8% | **100%** | 0 | 12.6% | 709 ms |
-| Construction, **5 dB SNR** | 100% | **100%** | 0 | 8.6% | 699 ms |
-| Crowd 10 dB, **keyterm boost OFF** | 95.8% | 93.8% | 0 | 14.4% | 691 ms |
+| Clean phone line | 100% | **100%** | 0 | 7.6% | 671 ms |
+| Street traffic, 15 dB SNR | 100% | **100%** | 0 | 4.6% | 748 ms |
+| Crowd babble, 10 dB SNR | 98.1% | **100%** | 0 | 11.5% | 708 ms |
+| Construction, **5 dB SNR** | 98.1% | **100%** | 1 | 6.3% | 775 ms |
+| Crowd 10 dB, **keyterm boost OFF** | 96.2% | 93.8% | 0 | 14.0% | 750 ms |
 
-- **Prisma v3.0 keyterm boosting matters:** with TB drug and symptom keyterms off, a Marathi "खोकल्यातून रक्त" (blood in cough) became gibberish and red-flag recall fell from 100% to 93.8%. With boosting on, every danger sign was caught at every noise level.
-- **Every miss is listed** in the in-app Evaluation page. Across all noisy conditions there was **one unsafe miss**: at 10 dB crowd noise, Prisma heard Kannada "ತೆಗೆದುಕೊಂಡಿಲ್ಲ" (*didn't take*) as "ತೆಗೆದುಕೊಂಡೆ" (*took*). The fused negative suffix was lost, so the call was marked green instead of amber. No danger sign was ever marked green.
-- Honest caveat: these scenarios were also used while developing the lexicon. They are a development set, not a held-out test.
+- **No danger sign was ever marked green**, at any noise level.
+- **Prisma v3.0 keyterm boosting matters:** with keyterms off, a Marathi "खोकल्यातून रक्त" (blood in cough) became "थोक यातून रख" and red-flag recall fell from 100% to 93.8%.
+- **Keyterms fixed a real unsafe miss.** The first evaluation run had one false green: in crowd noise, Prisma heard Kannada "ತೆಗೆದುಕೊಂಡಿಲ್ಲ" (*didn't take*) as "ತೆಗೆದುಕೊಂಡೆ" (*took*). Adding the negative dose forms of every language to Prisma's keyterms fixed it; Kannada is now 100% with zero false greens.
+- **The one remaining false green** is published: at 5 dB construction noise Prisma dropped the Marathi hesitation word "बहुतेक" (*probably*) from "बहुतेक घेतली", so the hesitation probe never fired. In live calls a long pause before answering is a second hesitation signal; the evaluation does not measure that, so this stays counted as a miss.
+- Every miss is listed in the in-app Evaluation page. Honest caveat: the scenarios were also used while developing the lexicon, so they are a development set, not a held-out test.
 
 ## How it decides (design)
 
@@ -70,6 +73,7 @@ Timbre v3.0 template ──► patient on an 8 kHz line ──► Prisma v3.0 (k
 4. Questions ("दवा बंद कर दूँ क्या?") are not statements.
 5. Patients only hear fixed templates. No generated text ever reaches a patient.
 6. The LLM (Evon) can only escalate to human review; it can never lower a status.
+7. A hesitant "yes" is never recorded as GREEN without one probe question. Self-reported adherence overstates the truth, which is exactly where 99DOTS loses accuracy.
 
 **Engineering details worth a look:**
 - **Script-agnostic phonetic matching** (`app/translit.py`). Prisma's `codemix` output can switch script *mid-phrase* ("मैंने **dawai band** कर दी"). Devanagari and Latin are keyed phonetically (schwa deletion, nasal and vowel folding), so "बंद कर दी", "band kar di" and "band कर दी" all match.
@@ -78,6 +82,31 @@ Timbre v3.0 template ──► patient on an 8 kHz line ──► Prisma v3.0 (k
 - **Gnani keys allow one in-flight request.** All API calls go through a process-wide lock with backoff on 429. Latency is measured inside the lock, so it reflects the network round-trip, not queueing.
 - **Every Timbre prompt is pre-generated and cached** (`scripts/build_prompts.py`), so calls start instantly and the demo can't break on the network.
 - **Every decision has a trace**: transcript, evidence words, confidence, the rule ID that fired, the actions, and latency. Open "Why?" on any card.
+
+## Hosted demo (Vercel)
+
+The full app needs a long-running server (SQLite, background rounds, live events). Vercel is serverless, so the hosted build splits the work honestly:
+
+- **Control room, worker dashboard, timelines and briefing** replay a round **recorded live against Gnani** by `backend/scripts/export_static.py`: real Timbre audio, real Prisma transcripts and real decisions, replayed at their real timing.
+- **The Patient phone is fully live.** `api/index.py` is a stateless serverless function. Each answer (scripted clip, your mic with optional noise, or typed) goes to Prisma v3.0 and through the same classifier and policy code. The call state travels with the browser, **HMAC-signed** so it can't be edited. Agent prompts are pre-rendered Timbre audio, so the function never needs TTS.
+- **Credit protection:** audio answers are capped per IP and per instance per hour and cut at 15 s, and `KHURAK_LIVE=0` switches Prisma off (typed answers keep working).
+
+```bash
+cd backend && python scripts/export_static.py   # record a live round + snapshot (needs the key)
+cd .. && vercel deploy --prod --env GNANI_API_KEY=...   # vercel.json does the rest
+```
+
+## Related work, and what Khurak learned from it
+
+Before the final push I read the closest public projects:
+
+| Project | What it does | What Khurak took from it, or does differently |
+|---|---|---|
+| [99DOTS](https://www.99dots.org/) | India's missed-call TB adherence system | The baseline: a missed call carries no information. Khurak listens to the answer |
+| [Tell](https://github.com/qiqiiiii77/tell) (AssemblyAI) | English medication-adherence agent that won't record a "yes" the patient didn't sound sure of | **Adopted the idea** as rule R5b: hesitation words in 5 languages plus a long pause before answering trigger a probe question |
+| [DischargeSaathi](https://github.com/Praharshithakarnam/DischargeSaathi) (Gnani) | Post-discharge follow-up with a concern queue | Similar human-review queue; Khurak adds TB-specific red flags, negation confirmation, family escalation and a noise-tested evaluation |
+| [CallLens](https://github.com/dragyo7/calllens-stress-lab) (Gnani) | Prisma benchmark under G.711 telephony degradation | Same phone-line simulation idea. Khurak measures the **end decision** (red-flag recall, false green), not only character error rate, and runs a keyterm ablation |
+| [Naadi](https://github.com/yashasprabhu29/Naadi-Emergency-CPR-Copilot) (Gnani) | Deterministic emergency detection for call-takers | Same "no LLM decides" principle; credit caps like theirs protect the public demo |
 
 ## Gnani models used
 
@@ -107,7 +136,7 @@ Useful scripts (from `backend/`):
 python scripts/smoke_test.py       # Timbre -> phone line -> Prisma round trip in 4 languages
 python scripts/build_prompts.py    # pre-generate and cache every prompt + demo answer
 python scripts/evaluate.py         # the full noise sweep -> store/eval/eval_report.md
-python -m pytest -q tests          # 68 safety and scenario tests
+python -m pytest -q tests          # 79 safety and scenario tests
 ```
 
 Dev mode with hot reload: `uvicorn app.main:app --reload --port 8765` in `backend/`, plus `npm run dev` in `frontend/` (proxies to the API).

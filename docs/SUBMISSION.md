@@ -13,9 +13,10 @@
 A deterministic policy engine decides the next action:
 - reassure about expected side effects with approved templates
 - ask one clarifying question, or confirm a negated danger word
+- probe a hesitant "yes" (filler words or a long pause) about recently missed doses, instead of recording it as-is
 - call a family contact after two unanswered calls, and flag a home visit after three days without a confirmed dose
 - escalate danger signs (yellow eyes, blood in cough, repeated vomiting, blurred vision, breathlessness, rash) to the health worker with the patient's exact words
 
 It never generates medical advice and never marks an unclear answer as safe. The health worker gets a prioritised dashboard, a decision trace for every call, and a spoken morning briefing.
 
-We evaluated the full pipeline on 48 synthetic calls across 5 languages and 5 line conditions (485 Prisma transcriptions). **Red-flag recall was 100% at every noise level, down to 5 dB SNR**, and call-status accuracy was 95.8–100% per condition. Disabling Prisma keyterm boosting reduced red-flag recall to 93.8%. All misses are published, including the single case where a mis-heard Kannada negation produced a false green. All data is synthetic.
+We evaluated the full pipeline on 52 synthetic calls across 5 languages and 5 line conditions (550 Prisma transcriptions). **Red-flag recall was 100% at every noise level, down to 5 dB SNR**, and call-status accuracy was 98.1–100% per condition. Disabling Prisma keyterm boosting reduced red-flag recall to 93.8%. Adding negative dose forms to the keyterms fixed an earlier unsafe Kannada miss. All misses are published, including the one remaining case where a hesitation word was lost at 5 dB. All data is synthetic.

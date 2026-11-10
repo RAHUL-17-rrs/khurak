@@ -29,7 +29,7 @@ What I'm proudest of:
 • **Rules decide, not a language model.** Every spoken reply is a fixed, reviewable template.
 • **Never green when unsure.** Unclear answers always reach a human.
 • **"पीली नहीं हैं" ≠ "पीली हैं".** Negated danger words get a confirmation question.
-• **Measured on a noisy phone line:** 48 synthetic calls × 5 conditions, 485 Prisma transcriptions. Red-flag recall was **100%** at every noise level, down to 5 dB SNR. Turning keyterm boosting off dropped it to 93.8%.
+• **Measured on a noisy phone line:** 52 synthetic calls × 5 conditions, 550 Prisma transcriptions. Red-flag recall was **100%** at every noise level, down to 5 dB SNR. Turning keyterm boosting off dropped it to 93.8%.
 • Prisma's code-mixed output switches script mid-phrase ("मैंने dawai band कर दी"), so I built script-agnostic phonetic matching for it.
 
 All patients, names, numbers and voices are synthetic.

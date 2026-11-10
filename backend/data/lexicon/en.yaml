@@ -19,3 +19,5 @@ no_problem: ["no problem", "all good", "fine"]
 negation: ["no", "not", "never"]
 question: ["should", "what"]
 unsure: ["don't know", "not sure", "later"]
+# hesitation markers: scanned separately (never mask other matches) - a hesitant 'yes' gets probed
+hesitation: ["hmm", "umm", "maybe", "i think", "not sure"]

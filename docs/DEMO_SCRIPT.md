@@ -16,7 +16,7 @@ Add English subtitles for every Indian-language line (CapCut / DaVinci Resolve).
 | 34–42 s | **Patient phone → Raju**, construction noise. "आँखें पीली **नहीं** हैं" → Khurak asks a confirmation question → 🟢 | *Prisma v3.0 on an 8 kHz line at 10 dB noise. Negation confirmed, never guessed.* |
 | 42–48 s | **You answer live on the mic** with pressure-cooker noise selected | *Real voice, real Prisma, nothing pre-baked* |
 | 48–54 s | **Health worker → ▶ morning briefing** (Hindi voice note), then "Why?" opens the decision trace | *Rules decide. Humans approve. Nothing is invented.* |
-| 54–60 s | Evaluation page: **Red-flag recall 100% at every noise level · 485 Prisma transcriptions** + hashtags | *Khurak. Because a missed call can't say "my eyes are yellow."* |
+| 54–60 s | Evaluation page: **Red-flag recall 100% at every noise level · 550 Prisma transcriptions** + hashtags | *Khurak. Because a missed call can't say "my eyes are yellow."* |
 
 ## 2–3 minute walkthrough (submission form / README)
 

@@ -1,0 +1,215 @@
+{
+ "generated_at": "2026-11-10 19:32",
+ "mode": "live",
+ "models": {
+  "stt": "prisma-v3.0",
+  "tts": "timbre-v3.0"
+ },
+ "pipeline": "Timbre v3.0 synthetic voice -> noise @SNR -> 300-3400 Hz band-pass -> 8 kHz G.711 mu-law -> Prisma v3.0 (keyterms + topic) -> lexicon/phonetic classifier -> deterministic policy",
+ "n_scenarios": 52,
+ "n_calls": 312,
+ "n_utterances": 550,
+ "overall_audio": {
+  "n": 208,
+  "status_acc": 0.9904,
+  "rule_acc": 0.976,
+  "red_recall": 1.0,
+  "red_n": 64,
+  "false_green": 1,
+  "false_green_rate": 0.0074,
+  "red_to_green": 0,
+  "over_escalation": 1
+ },
+ "by_condition": {
+  "text": {
+   "n": 52,
+   "status_acc": 1.0,
+   "rule_acc": 1.0,
+   "red_recall": 1.0,
+   "red_n": 16,
+   "false_green": 0,
+   "false_green_rate": 0.0,
+   "red_to_green": 0,
+   "over_escalation": 0,
+   "cer": null,
+   "stt_ms_avg": null
+  },
+  "clean": {
+   "n": 52,
+   "status_acc": 1.0,
+   "rule_acc": 1.0,
+   "red_recall": 1.0,
+   "red_n": 16,
+   "false_green": 0,
+   "false_green_rate": 0.0,
+   "red_to_green": 0,
+   "over_escalation": 0,
+   "cer": 0.0759,
+   "stt_ms_avg": 671
+  },
+  "street_15db": {
+   "n": 52,
+   "status_acc": 1.0,
+   "rule_acc": 0.9808,
+   "red_recall": 1.0,
+   "red_n": 16,
+   "false_green": 0,
+   "false_green_rate": 0.0,
+   "red_to_green": 0,
+   "over_escalation": 0,
+   "cer": 0.0463,
+   "stt_ms_avg": 748
+  },
+  "crowd_10db": {
+   "n": 52,
+   "status_acc": 0.9808,
+   "rule_acc": 0.9423,
+   "red_recall": 1.0,
+   "red_n": 16,
+   "false_green": 0,
+   "false_green_rate": 0.0,
+   "red_to_green": 0,
+   "over_escalation": 1,
+   "cer": 0.1148,
+   "stt_ms_avg": 708
+  },
+  "construction_5db": {
+   "n": 52,
+   "status_acc": 0.9808,
+   "rule_acc": 0.9808,
+   "red_recall": 1.0,
+   "red_n": 16,
+   "false_green": 1,
+   "false_green_rate": 0.0294,
+   "red_to_green": 0,
+   "over_escalation": 0,
+   "cer": 0.0631,
+   "stt_ms_avg": 775
+  },
+  "crowd_10db_noboost": {
+   "n": 52,
+   "status_acc": 0.9615,
+   "rule_acc": 0.9038,
+   "red_recall": 0.9375,
+   "red_n": 16,
+   "false_green": 0,
+   "false_green_rate": 0.0,
+   "red_to_green": 0,
+   "over_escalation": 1,
+   "cer": 0.1402,
+   "stt_ms_avg": 750
+  }
+ },
+ "by_language": {
+  "mr-IN": {
+   "n": 40,
+   "status_acc": 0.975,
+   "rule_acc": 0.925,
+   "red_recall": 1.0,
+   "red_n": 12,
+   "false_green": 1,
+   "false_green_rate": 0.0357,
+   "red_to_green": 0,
+   "over_escalation": 0
+  },
+  "hi-IN": {
+   "n": 80,
+   "status_acc": 0.9875,
+   "rule_acc": 0.975,
+   "red_recall": 1.0,
+   "red_n": 28,
+   "false_green": 0,
+   "false_green_rate": 0.0,
+   "red_to_green": 0,
+   "over_escalation": 1
+  },
+  "hi-en": {
+   "n": 24,
+   "status_acc": 1.0,
+   "rule_acc": 1.0,
+   "red_recall": 1.0,
+   "red_n": 4,
+   "false_green": 0,
+   "false_green_rate": 0.0,
+   "red_to_green": 0,
+   "over_escalation": 0
+  },
+  "kn-IN": {
+   "n": 32,
+   "status_acc": 1.0,
+   "rule_acc": 1.0,
+   "red_recall": 1.0,
+   "red_n": 8,
+   "false_green": 0,
+   "false_green_rate": 0.0,
+   "red_to_green": 0,
+   "over_escalation": 0
+  },
+  "bn-IN": {
+   "n": 32,
+   "status_acc": 1.0,
+   "rule_acc": 1.0,
+   "red_recall": 1.0,
+   "red_n": 12,
+   "false_green": 0,
+   "false_green_rate": 0.0,
+   "red_to_green": 0,
+   "over_escalation": 0
+  }
+ },
+ "failures": [
+  {
+   "cond": "crowd_10db",
+   "id": "hi10",
+   "lang": "hi-IN",
+   "expected": "GREEN",
+   "expected_rule": "R7",
+   "got": "AMBER",
+   "rule": "R6b",
+   "ok": false,
+   "rule_ok": false,
+   "reasons": "unspecified_problem",
+   "heard": "ask_dose: जी, ले ली। / ask_symptoms: थोड़ा जी मिथलाता है।"
+  },
+  {
+   "cond": "construction_5db",
+   "id": "mr08",
+   "lang": "mr-IN",
+   "expected": "AMBER",
+   "expected_rule": "R6a",
+   "got": "GREEN",
+   "rule": "R8",
+   "ok": false,
+   "rule_ok": false,
+   "reasons": "dose_taken",
+   "heard": "ask_dose: हो, ते घेतली. / probe_dose: हो, काल राहिली होती. / ask_symptoms: नाही।"
+  },
+  {
+   "cond": "crowd_10db_noboost",
+   "id": "hi10",
+   "lang": "hi-IN",
+   "expected": "GREEN",
+   "expected_rule": "R7",
+   "got": "AMBER",
+   "rule": "R6b",
+   "ok": false,
+   "rule_ok": false,
+   "reasons": "unspecified_problem",
+   "heard": "ask_dose: जी, ले लीजिए। / ask_symptoms: थोड़ा जी मिथलाता है।"
+  },
+  {
+   "cond": "crowd_10db_noboost",
+   "id": "mr04",
+   "lang": "mr-IN",
+   "expected": "RED",
+   "expected_rule": "R1",
+   "got": "AMBER",
+   "rule": "R4",
+   "ok": false,
+   "rule_ok": false,
+   "reasons": "unclear_answer",
+   "heard": "ask_dose:  / ask_symptoms: थोक यातून रख दिए गए।"
+  }
+ ],
+ "seconds": 2
+}

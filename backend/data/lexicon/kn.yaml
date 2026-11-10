@@ -26,3 +26,5 @@ negation: ["ಇಲ್ಲ", "ಇಲ್ಲಾ", "ಅಲ್ಲ", "ಬೇಡ"]
 negation_suffix: ["ಲ್ಲ"]
 question: ["ಏನು", "ಬೇಕಾ"]
 unsure: ["ಗೊತ್ತಿಲ್ಲ", "ನೆನಪಿಲ್ಲ", "ಆಮೇಲೆ ಮಾತಾಡೋಣ", "ಸಮಯ ಇಲ್ಲ"]
+# hesitation markers: scanned separately (never mask other matches) - a hesitant 'yes' gets probed
+hesitation: ["ಹ್ಮ್", "ಅಂ", "ಬಹುಶಃ", "ಅನಿಸುತ್ತೆ", "ನೆನಪಿಲ್ಲ", "ಗೊತ್ತಿಲ್ಲ"]

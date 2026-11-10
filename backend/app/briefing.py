@@ -18,6 +18,7 @@ REASON_HI = {
     "home_visit_needed": "तीन दिन से दवा की पुष्टि नहीं, घर जाना ज़रूरी है",
     "unspecified_problem": "कोई तकलीफ़ बताई है", "vomiting": "उल्टी हुई", "stomach_pain": "पेट दर्द",
     "tingling": "हाथ पैर में झुनझुनी", "joint_pain": "जोड़ों में दर्द",
+    "missed_recent_doses": "पिछले तीन दिनों में खुराक छूटी",
 }
 REASON_EN = {
     "yellow_eyes": "yellow eyes", "blood_cough": "blood in cough", "persistent_vomit": "repeated vomiting",
@@ -29,6 +30,7 @@ REASON_EN = {
     "home_visit_needed": "no confirmed dose for 3 days, home visit needed",
     "unspecified_problem": "reported a problem", "vomiting": "vomited", "stomach_pain": "stomach pain",
     "tingling": "tingling in hands/feet", "joint_pain": "joint pain",
+    "missed_recent_doses": "missed doses in the last 3 days",
 }
 
 

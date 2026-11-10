@@ -63,6 +63,7 @@ class Understanding:
     away: bool = False
     asked_about_stopping: bool = False
     unsure: bool = False
+    hesitant: bool = False
     confidence: float = 0.0
     evidence: list[str] = field(default_factory=list)
 
@@ -235,6 +236,17 @@ def classify(transcript: str, lang: str, stage: str = "ask_dose") -> Understandi
         clauses[i] for i in range(len(tokens))
         for p in lex.get("intensifier", []) if tokens[i:i + len(p.split())] == p.split()
     }
+
+    # hesitation markers ("हम्म", "शायद", "বোধহয়") are scanned on raw tokens and never consume spans
+    hes = [p for p in lex.get("hesitation", [])
+           if any(tokens[i:i + len(p.split())] == p.split() for i in range(len(tokens)))]
+    if not hes and lang in PHONETIC_LANGS:
+        rt = [key_token(t) for t in tokens]
+        hes = [p for p in lex.get("hesitation", [])
+               if any(rt[i:i + len(p.split())] == key_phrase(p).split() for i in range(len(rt)))]
+    if hes:
+        u.hesitant = True
+        u.evidence.append("hesitation=" + ",".join(hes))
 
     dose_hits: dict[str, list[Match]] = {}
     fuzzy_used = False

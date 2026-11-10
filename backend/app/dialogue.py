@@ -12,7 +12,8 @@ from .classifier import Understanding, classify
 from .policy import CallMemory, Decision, absorb, final_decision, next_step
 from .prompts import render, render_en
 
-MAX_TURNS = 5
+MAX_TURNS = 6
+HESITATION_PAUSE_MS = 2500   # a long silence before "yes" is a hesitation signal (cf. Tell)
 
 
 @dataclass
@@ -49,6 +50,18 @@ class Dialogue:
         p = Prompt(key, render(key, self.lang, **vars), render_en(key, **vars), vars)
         return p
 
+    # --- stateless hosting (Vercel): the whole call state round-trips through the client, signed
+    def to_state(self) -> dict:
+        return {"lang": self.lang, "name": self.name, "kind": self.kind, "stage": self.stage,
+                "mem": self.mem.to_dict(), "last_prompt_en": self.last_prompt_en}
+
+    @classmethod
+    def from_state(cls, st: dict, use_evon: bool = True) -> "Dialogue":
+        d = cls(st["lang"], st["name"], st["kind"], use_evon=use_evon)
+        d.stage, d.last_prompt_en = st["stage"], st.get("last_prompt_en", "")
+        d.mem = CallMemory.from_dict(st["mem"])
+        return d
+
     def opening(self) -> list[Prompt]:
         if self.kind == "family":
             ps = [self.prompt("family_check", name=self.name)]
@@ -60,9 +73,13 @@ class Dialogue:
     def closing(self) -> list[Prompt]:
         return [self.prompt(k) for k in (self.decision.say if self.decision else [])]
 
-    def answer(self, transcript: str) -> TurnOutcome:
+    def answer(self, transcript: str, onset_ms: int | None = None) -> TurnOutcome:
+        """onset_ms = silence before the patient started speaking (audio answers only)."""
         stage = self.stage
         u = classify(transcript, self.lang, stage)
+        if onset_ms is not None and onset_ms >= HESITATION_PAUSE_MS and transcript.strip():
+            u.hesitant = True
+            u.evidence.append(f"pause={onset_ms}ms before answering")
         absorb(self.mem, stage, u)
 
         opinion = None

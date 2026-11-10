@@ -111,12 +111,16 @@ def take_turn(call_id: str, *, wav: bytes | None = None, text: str | None = None
     emit("transcribed", call_id=call_id, patient_id=p["id"], stage=stage, text=transcript,
          stt_ms=stt_ms, mock=stt_mock, audio=patient_audio_url)
 
-    out = s.dialogue.answer(transcript)
+    onset = None
+    if wav is not None and source == "live":
+        from .audio import onset_ms
+        onset = onset_ms(wav)
+    out = s.dialogue.answer(transcript, onset_ms=onset)
     u = out.understanding
     turn = {"stage": stage, "transcript": transcript, "dose": u.dose, "red_flags": u.red_flags,
             "negated": u.negated, "benign": u.benign, "watch": u.watch, "confidence": u.confidence,
             "evidence": u.evidence, "stt_ms": stt_ms, "source": source, "evon": out.evon,
-            "step_rule": out.step_rule, "patient_audio": patient_audio_url}
+            "step_rule": out.step_rule, "patient_audio": patient_audio_url, "onset_ms": onset}
     s.trace["turns"].append(turn)
     db.ex("""INSERT INTO turns(call_id, idx, stage, prompt_json, answer_audio, transcript, understanding_json,
              evon_json, stt_ms, stt_mock, source, created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""",

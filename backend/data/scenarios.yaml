@@ -55,7 +55,7 @@ eval:
   - {id: hi03, lang: hi-IN, voice: Shubham, answers: {ask_dose: "आज भूल गया, नहीं ली।"}, expected: {status: AMBER, rule: R6}}
   - {id: hi04, lang: hi-IN, voice: Vasudha, answers: {ask_dose: "हाँ ली है।", ask_symptoms: "आँखें पीली हो गई हैं, और भूख नहीं लगती।"}, expected: {status: RED, rule: R1}}
   - {id: hi05, lang: hi-IN, voice: Yashraj, answers: {ask_dose: "<coughs> हाँ ले ली।", ask_symptoms: "<coughs> बलगम में खून आ रहा है।"}, expected: {status: RED, rule: R1}}
-  - {id: hi06, lang: hi-IN, voice: Harshad, answers: {ask_dose: "हम्म <pauses> हाँ, ले ली।", ask_symptoms: "सब ठीक है।"}, expected: {status: GREEN, rule: R8}}
+  - {id: hi06, lang: hi-IN, voice: Harshad, answers: {ask_dose: "हम्म <pauses> हाँ, ले ली।", probe_dose: "नहीं, एक भी नहीं छूटी।", ask_symptoms: "सब ठीक है।"}, expected: {status: GREEN, rule: R8}}
   - {id: hi07, lang: hi-IN, voice: Tarika, answers: {ask_dose: "अब तो मैं ठीक हो गई हूँ, दवा छोड़ दी है।", ask_symptoms: "नहीं।"}, expected: {status: AMBER, rule: R3}}
   - {id: hi08, lang: hi-IN, voice: Avinash, answers: {ask_dose: "हाँ ले ली।", ask_symptoms: "सांस फूल रही है, चलने में दिक्कत है।"}, expected: {status: RED, rule: R1}}
   - {id: hi09, lang: hi-IN, voice: Riyaa, answers: {ask_dose: "ले ली दवा।", ask_symptoms: "बार बार उल्टी हो रही है।"}, expected: {status: RED, rule: R1}}
@@ -66,6 +66,7 @@ eval:
   - {id: hi14, lang: hi-IN, voice: Kalpana, answers: {ask_dose: "बाद में बात करते हैं।", followup_dose: "अभी टाइम नहीं है।", ask_symptoms: "नहीं।"}, expected: {status: AMBER, rule: R4}}
   - {id: hi15, lang: hi-IN, voice: Harshad, answers: {ask_dose: "हाँ ले ली।", ask_symptoms: "शरीर पर दाने निकल आए हैं, बहुत खुजली है।"}, expected: {status: RED, rule: R1}}
   - {id: hi16, lang: hi-IN, voice: Yashraj, answers: {ask_dose: "हाँ।", ask_symptoms: "धुंधला दिखाई दे रहा है।"}, expected: {status: RED, rule: R1}}
+  - {id: hi17, lang: hi-IN, voice: Kalpana, answers: {ask_dose: "हम्म <pauses> शायद ले ली थी।", probe_dose: "हाँ, परसों छूट गई थी।", ask_symptoms: "नहीं।"}, expected: {status: AMBER, rule: R6a}}
   # ---------------- Hinglish (code-mixed)
   - {id: he01, lang: hi-en, voice: Devansh, answers: {ask_dose: "Haan, morning mein le li thi.", ask_symptoms: "Nahi, all good."}, expected: {status: GREEN, rule: R8}}
   - {id: he02, lang: hi-en, voice: Riyaa, answers: {ask_dose: "Haan le li, but urine ka colour orange aa raha hai.", ask_symptoms: "Bas wahi."}, expected: {status: GREEN, rule: R7}}
@@ -80,6 +81,7 @@ eval:
   - {id: mr05, lang: mr-IN, voice: Harshad, answers: {ask_dose: "बरं वाटतंय म्हणून गोळ्या बंद केल्या.", ask_symptoms: "नाही."}, expected: {status: AMBER, rule: R3}}
   - {id: mr06, lang: mr-IN, voice: Kalpana, answers: {ask_dose: "घेतली.", ask_symptoms: "डोळे पिवळे नाहीत, पण पोटदुखी आहे."}, expected: {status: AMBER, rule: R6b}}
   - {id: mr07, lang: mr-IN, voice: Avinash, answers: {ask_dose: "हो घेतली.", ask_symptoms: "दम लागतोय, श्वास घ्यायला त्रास होतोय."}, expected: {status: RED, rule: R1}}
+  - {id: mr08, lang: mr-IN, voice: Prakash, answers: {ask_dose: "बहुतेक घेतली.", probe_dose: "हो, काल राहिली होती.", ask_symptoms: "नाही."}, expected: {status: AMBER, rule: R6a}}
   # ---------------- Bengali
   - {id: bn01, lang: bn-IN, voice: Riyaa, answers: {ask_dose: "হ্যাঁ, খেয়েছি।", ask_symptoms: "না, কোনো অসুবিধা নেই।"}, expected: {status: GREEN, rule: R8}}
   - {id: bn02, lang: bn-IN, voice: Shubham, answers: {ask_dose: "আজ খেতে ভুলে গেছি।", ask_symptoms: "না।"}, expected: {status: AMBER, rule: R6}}
@@ -87,6 +89,7 @@ eval:
   - {id: bn04, lang: bn-IN, voice: Avinash, answers: {ask_dose: "খেয়েছি।", ask_symptoms: "চোখ হলুদ হয়ে গেছে, আর বারবার বমি হচ্ছে।"}, expected: {status: RED, rule: R1}}
   - {id: bn05, lang: bn-IN, voice: Vasudha, answers: {ask_dose: "ভালো আছি বলে ওষুধ বন্ধ করে দিয়েছি।", ask_symptoms: "না।"}, expected: {status: AMBER, rule: R3}}
   - {id: bn06, lang: bn-IN, voice: Devansh, answers: {ask_dose: "হ্যাঁ।", ask_symptoms: "<coughs> কাশির সাথে রক্ত আসছে।"}, expected: {status: RED, rule: R1}}
+  - {id: bn07, lang: bn-IN, voice: Riyaa, answers: {ask_dose: "হুম <pauses> বোধহয় খেয়েছি।", probe_dose: "না, একটাও বাদ পড়েনি।", ask_symptoms: "না, কোনো অসুবিধা নেই।"}, expected: {status: GREEN, rule: R8}}
   # ---------------- Kannada
   - {id: kn01, lang: kn-IN, voice: Lakshmi, answers: {ask_dose: "ಹೌದು, ತೆಗೆದುಕೊಂಡೆ.", ask_symptoms: "ಏನೂ ತೊಂದರೆ ಇಲ್ಲ."}, expected: {status: GREEN, rule: R8}}
   - {id: kn02, lang: kn-IN, voice: Avinash, answers: {ask_dose: "ಇವತ್ತು ಮರೆತೆ, ತೆಗೆದುಕೊಂಡಿಲ್ಲ.", ask_symptoms: "ಇಲ್ಲ."}, expected: {status: AMBER, rule: R6}}
@@ -94,6 +97,8 @@ eval:
   - {id: kn04, lang: kn-IN, voice: Prakash, answers: {ask_dose: "ತೆಗೆದುಕೊಂಡೆ.", ask_symptoms: "ಮೂತ್ರ ಕೆಂಪು ಬಣ್ಣ ಇದೆ."}, expected: {status: GREEN, rule: R7}}
   - {id: kn05, lang: kn-IN, voice: Shivani, answers: {ask_dose: "ಹುಷಾರಾಗಿದ್ದೇನೆ, ಮಾತ್ರೆ ನಿಲ್ಲಿಸಿದೆ.", ask_symptoms: "ಇಲ್ಲ."}, expected: {status: AMBER, rule: R3}}
   - {id: kn06, lang: kn-IN, voice: Harshad, answers: {ask_dose: "ಹೌದು ತೆಗೆದುಕೊಂಡೆ.", ask_symptoms: "ಉಸಿರಾಡಲು ಕಷ್ಟ ಆಗ್ತಿದೆ."}, expected: {status: RED, rule: R1}}
+
+  - {id: kn07, lang: kn-IN, voice: Lakshmi, answers: {ask_dose: "ಬಹುಶಃ ತೆಗೆದುಕೊಂಡೆ.", probe_dose: "ಹೌದು, ನಿನ್ನೆ ಮರೆತೆ.", ask_symptoms: "ಇಲ್ಲ."}, expected: {status: AMBER, rule: R6a}}
 
 # Noise conditions for the evaluation sweep.
 noise_conditions:

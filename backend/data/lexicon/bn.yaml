@@ -25,3 +25,5 @@ no_problem: ["কোনো অসুবিধা নেই", "কোন অস�
 negation: ["না", "নেই", "নয়", "হয়নি", "নাই"]
 question: ["কি", "কী"]
 unsure: ["জানি না", "মনে নেই", "পরে কথা বলব", "সময় নেই"]
+# hesitation markers: scanned separately (never mask other matches) - a hesitant 'yes' gets probed
+hesitation: ["হুম", "উমম", "উম", "হয়তো", "বোধহয়", "মনে হয়", "ঠিক মনে নেই"]

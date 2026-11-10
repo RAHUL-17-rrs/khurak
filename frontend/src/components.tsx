@@ -75,6 +75,7 @@ export function Modal({ open, onClose, title, children }: { open: boolean; onClo
 const STAGE_EN: Record<string, string> = {
   ask_dose: 'Asked: took today\'s dose?', followup_dose: 'Follow-up: yes or no?', ask_symptoms: 'Asked: any problems?',
   confirm_symptom: 'Confirmation question', family_check: 'Asked family: is the patient OK?',
+  probe_dose: 'Probe (hesitant yes): missed any dose?',
 }
 
 /** The explainable-agent view: every turn, the evidence words, and the rule that fired. */
@@ -152,6 +153,13 @@ export function TraceButton({ callId, label = 'Why?' }: { callId: string | null 
 }
 
 export function ReplayCall({ call }: { call: Call }) {
+  if (call.trace?.audio_sequence?.length) {
+    const seq = call.trace.audio_sequence
+    return (
+      <button className="mt-4 w-full rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-800"
+        onClick={() => playAll(seq)}>▶ Replay the agent side of this call (8 kHz phone line)</button>
+    )
+  }
   const urls: string[] = [`/audio/rec/${call.id}_a0.wav`]
   ;(call.trace?.turns ?? []).forEach((t, i) => {
     if (t.patient_audio) urls.push(t.patient_audio)

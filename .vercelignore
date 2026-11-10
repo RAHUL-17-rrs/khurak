@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+backend/.venv
+backend/store
+backend/tests
+frontend/node_modules
+frontend/dist
+**/__pycache__
+*.pyc

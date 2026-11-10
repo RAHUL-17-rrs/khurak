@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { api, reasonLabel, useEvents, type AppStatus, type KEvent, type Patient, type Status } from '../api'
+import { api, reasonLabel, STATIC, useEvents, type AppStatus, type KEvent, type Patient, type Status } from '../api'
 import { play } from '../audio'
 import { Chip, LangTag, StatusPill, Stat, STATUS_STYLE, Strip, TraceButton, Wave } from '../components'
 
@@ -24,6 +24,7 @@ export default function ControlRoom({ status }: { status: AppStatus | null }) {
   const [day, setDay] = useState<number | null>(null)
   const [pace, setPace] = useState(1)
   const [listenTo, setListenTo] = useState<string | null>(null)
+  const [roundActive, setRoundActive] = useState(false)
   const [err, setErr] = useState('')
   const queue = useRef<string[]>([])
   const playing = useRef(false)
@@ -55,7 +56,7 @@ export default function ControlRoom({ status }: { status: AppStatus | null }) {
     const mine = listenRef.current && pid === listenRef.current
     switch (e.type) {
       case 'round_started':
-        setRunning(true); setLive({}); addLog(`Round started · day ${e.day} · ${e.total} patients`, 'violet'); break
+        setRunning(true); setRoundActive(true); setLive({}); addLog(`Round started · day ${e.day} · ${e.total} patients`, 'violet'); break
       case 'call_dialing':
         upd(pid, { phase: e.kind === 'family' ? 'family' : 'dialing', callId: e.call_id as string, kind: e.kind as string, heard: undefined, agent: undefined, status: undefined })
         addLog(e.kind === 'family' ? `${name}: calling family contact (${e.who})` : `${name}: dialing (attempt ${e.attempt})`, 'slate', pid); break
@@ -88,7 +89,7 @@ export default function ControlRoom({ status }: { status: AppStatus | null }) {
       case 'call_error':
         upd(pid, { phase: 'error', note: e.error as string }); addLog(`${name}: error ${e.error}`, 'red', pid); break
       case 'round_finished':
-        setRunning(false); addLog(`Round finished · day ${e.day}`, 'violet'); load(); break
+        setRunning(false); setRoundActive(false); addLog(`Round finished · day ${e.day}`, 'violet'); load(); break
       case 'reset': case 'day_changed':
         setLive({}); setDay(e.day as number); load(); break
     }
@@ -129,13 +130,20 @@ export default function ControlRoom({ status }: { status: AppStatus | null }) {
           </button>
           <button onClick={async () => { await api.reset(); setLive({}); setLog([]); load() }} disabled={running}
             className="rounded-xl border line px-3 py-2.5 text-sm font-medium hover:bg-black/5 disabled:opacity-50">Reset demo</button>
-          <button onClick={async () => { await api.nextDay(); load() }} disabled={running}
-            className="rounded-xl border line px-3 py-2.5 text-sm font-medium hover:bg-black/5 disabled:opacity-50">Next day →</button>
+          {!STATIC && <button onClick={async () => { await api.nextDay(); load() }} disabled={running}
+            className="rounded-xl border line px-3 py-2.5 text-sm font-medium hover:bg-black/5 disabled:opacity-50">Next day →</button>}
         </div>
       </section>
 
       {err && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{err}</p>}
-      {status?.mode === 'mock' && (
+      {STATIC && (
+        <p className="rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-900 dark:bg-brand-900/30 dark:text-brand-100">
+          <b>Hosted demo.</b> “Run today's calls” replays a round recorded live against Gnani Prisma v3.0 + Timbre v3.0
+          {status?.recorded_at ? ` on ${status.recorded_at}` : ''}: real audio, real transcripts, real decisions, at their real timing.
+          The <a href="/phone" className="font-semibold underline">Patient phone</a> is fully live: your answers go to Prisma right now.
+        </p>
+      )}
+      {status?.mode === 'mock' && !STATIC && (
         <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
           Mock mode: no GNANI_API_KEY found. Audio is a placeholder and transcripts are the scripted text. Add your key to <code>.env</code> for real Prisma + Timbre.
         </p>
@@ -152,7 +160,7 @@ export default function ControlRoom({ status }: { status: AppStatus | null }) {
         <section className="grid gap-3 sm:grid-cols-2">
           {patients.map((p) => {
             const l = live[p.id]
-            const st = l?.status ?? (l ? undefined : p.today?.status)
+            const st = l?.status ?? (l || roundActive ? undefined : p.today?.status)
             const s = st ? STATUS_STYLE[st] : null
             const active = l && !['done', 'idle', 'error'].includes(l.phase)
             return (

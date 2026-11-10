@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { api, LANG, reasonLabel, type AppStatus, type Patient, type StepResult, type Understanding } from '../api'
-import { play, stopAudio, WavRecorder } from '../audio'
+import { play, playAll, stopAudio, WavRecorder } from '../audio'
 import { Chip, LangTag, StatusPill, TraceButton, Wave } from '../components'
 
 type Phase = 'idle' | 'ringing' | 'connecting' | 'agent' | 'your_turn' | 'recording' | 'processing' | 'patient_audio' | 'closed' | 'missed'
@@ -14,7 +14,7 @@ const NOISES = [
 ]
 const STAGE_HINT: Record<string, string> = {
   ask_dose: 'Did you take today\'s dose?', followup_dose: 'Yes or no?', ask_symptoms: 'Any problems?',
-  confirm_symptom: 'Confirm: yes or no?', family_check: 'Is the patient OK?',
+  confirm_symptom: 'Confirm: yes or no?', family_check: 'Is the patient OK?', probe_dose: 'Missed any dose in 3 days?',
 }
 
 export default function PhoneSimulator({ status }: { status: AppStatus | null }) {
@@ -77,7 +77,7 @@ export default function PhoneSimulator({ status }: { status: AppStatus | null })
     setTurns((t) => [...t, { agent: r.agent_text, agentEn: r.agent_english }])
     setStage(r.stage ?? '')
     setPhase('agent')
-    await play(r.agent_audio)
+    await playAll(r.agent_audios?.length ? r.agent_audios : [r.agent_audio], 150)
     if (r.closed) { setFinal(r); setPhase('closed'); return }
     setPhase('your_turn')
     if (r.call_id) api.scriptedPreview(r.call_id).then((p) => setPreview(p.text)).catch(() => setPreview(null))
@@ -313,6 +313,7 @@ export default function PhoneSimulator({ status }: { status: AppStatus | null })
             <li>Say <span className="indic">“आँखें पीली नहीं हैं”</span> → Khurak asks a confirmation question instead of guessing.</li>
             <li>Say <span className="indic">“पेशाब लाल आ रहा है”</span> → approved reassurance: orange urine is a normal rifampicin effect.</li>
             <li>Mumble or talk about the weather → one follow-up, then 🟡 (never green when unsure).</li>
+            <li>Say <span className="indic">“हम्म… शायद ले ली थी”</span> or pause 3 s before answering → a hesitant yes is probed, never recorded as-is.</li>
           </ul>
         </div>
       </section>

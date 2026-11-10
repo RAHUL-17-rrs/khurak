@@ -140,6 +140,21 @@ def trim_silence(x: np.ndarray, sr: int, thresh: float = 0.01) -> np.ndarray:
     return x[max(0, idx[0] - pad): min(len(x), idx[-1] + pad)]
 
 
+def onset_ms(data: bytes, frame_ms: int = 20) -> int:
+    """Silence before speech starts: first 20 ms frame whose energy exceeds 15% of the loudest frame."""
+    x, sr = read_wav_bytes(data)
+    n = max(1, int(sr * frame_ms / 1000))
+    if len(x) < n:
+        return 0
+    frames = x[: len(x) // n * n].reshape(-1, n)
+    e = np.sqrt((frames.astype(np.float64) ** 2).mean(axis=1))
+    peak = float(e.max())
+    if peak < 1e-4:
+        return 0
+    idx = int(np.argmax(e > 0.15 * peak))
+    return idx * frame_ms
+
+
 def rms(x: np.ndarray) -> float:
     return float(np.sqrt(np.mean(x.astype(np.float64) ** 2) + 1e-12))
 

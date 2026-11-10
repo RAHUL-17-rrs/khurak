@@ -49,6 +49,7 @@ export default function App() {
               <>
                 <Badge ok={status.mode === 'live'} label={status.mode === 'live' ? 'Prisma v3.0 · live' : 'MOCK MODE · no API key'} />
                 <Badge ok={status.mode === 'live'} label={status.mode === 'live' ? 'Timbre v3.0 · live' : 'placeholder audio'} />
+                {status.hosted && <Badge ok neutral label="Hosted on Vercel" />}
                 <Badge ok={status.evon.online} neutral={!status.evon.enabled} label={status.evon.online ? 'Evon v3.3 · online' : status.evon.enabled ? 'Evon · offline' : 'Evon · not connected'} />
               </>
             ) : <Badge ok={false} label="backend offline" />}

@@ -10,6 +10,7 @@ Hard safety invariants (tested in tests/test_policy.py):
   I3  A red-flag word with negation is never silently dropped: it is confirmed once.
   I4  The Evon second-listener can only ADD concern (-> AMBER review), never remove it.
   I5  Patients only ever hear fixed templates from prompts.py.
+  I6  A hesitant "yes" is never recorded as GREEN without one probe question (R5b).
 """
 from __future__ import annotations
 
@@ -25,7 +26,9 @@ RULES = {
     "R3": "Patient stopped treatment -> 'complete the course' + flag worker",
     "R4": "Dose still unclear after one follow-up -> flag worker",
     "R5": "Dose unclear (first time) -> ask one follow-up",
+    "R5b": "Hesitant 'yes' (filler words / long pause) -> one probe about recent missed doses; an unsure yes is never recorded as-is",
     "R6": "Dose missed -> acknowledge + flag worker",
+    "R6a": "Probe revealed recently missed doses -> acknowledge + flag worker",
     "R6b": "Non-red symptom needing review (vomiting once, pain, tingling, unconfirmed) -> flag worker",
     "R6c": "Evon second-listener raised a concern the rules did not -> human review",
     "R7": "Harmless, expected side effect -> approved reassurance + log",
@@ -56,6 +59,10 @@ class CallMemory:
     unconfirmed: list[str] = field(default_factory=list)
     unspecified_problem: bool = False
     away: bool = False
+    hesitant: bool = False
+    hesitation: list[str] = field(default_factory=list)
+    probe_asked: bool = False
+    recent_missed: bool = False
     min_conf: float = 1.0
     quotes: list[str] = field(default_factory=list)
     evon_concerns: list[dict] = field(default_factory=list)
@@ -105,7 +112,18 @@ def absorb(mem: CallMemory, stage: str, u: Understanding) -> None:
             mem.min_conf = min(mem.min_conf, u.confidence)
         elif stage == "followup_dose" or mem.kind == "family":
             mem.min_conf = min(mem.min_conf, u.confidence)
+        if u.hesitant and u.dose == "TAKEN":
+            mem.hesitant = True
+            mem.hesitation += [e for e in u.evidence if e.startswith(("hesitation", "pause"))]
         # patient volunteered symptom info with the dose answer -> no need to ask again
+        if u.no_problem or u.red_flags or u.negated or u.benign or u.watch:
+            mem.symptoms_asked = True
+    elif stage == "probe_dose":
+        # "did you miss any dose in the last three days?"  yes / "chhoot gayi" -> missed recently
+        if u.dose == "MISSED" or (u.affirm and not u.deny):
+            mem.recent_missed = True
+        elif not (u.deny or u.no_problem):
+            mem.min_conf = min(mem.min_conf, 0.4)      # still unsure -> never green
         if u.no_problem or u.red_flags or u.negated or u.benign or u.watch:
             mem.symptoms_asked = True
     elif stage == "ask_symptoms":
@@ -157,6 +175,10 @@ def next_step(mem: CallMemory, stage: str) -> Step:
         mem.followup_asked = True                       # R5
         return Step("followup_dose", "followup_dose", rule="R5")
 
+    if mem.hesitant and not mem.probe_asked and mem.dose == "TAKEN":   # R5b
+        mem.probe_asked = True
+        return Step("probe_dose", "probe_dose", rule="R5b")
+
     if not mem.symptoms_asked:
         mem.symptoms_asked = True
         return Step("ask_symptoms", "ask_symptoms")
@@ -195,6 +217,10 @@ def final_decision(mem: CallMemory) -> Decision:
     if mem.dose == "MISSED":                                              # R6
         return d(AMBER, "R6", ["missed_dose"], ["missed_ack"],
                  [{"tool": "flag_worker", "reason": "missed_dose", "quote": quote}])
+
+    if mem.recent_missed:                                                 # R6a
+        return d(AMBER, "R6a", ["missed_recent_doses"], ["missed_ack"],
+                 [{"tool": "flag_worker", "reason": "missed_recent_doses", "quote": quote}])
 
     review = mem.watch + [f"unconfirmed_{s}" for s in mem.unconfirmed] + \
         (["unspecified_problem"] if mem.unspecified_problem else [])
