@@ -33,7 +33,7 @@ What I'm proudest of:
 • Prisma's code-mixed output switches script mid-phrase ("मैंने dawai band कर दी"), so I built script-agnostic phonetic matching for it.
 
 All patients, names, numbers and voices are synthetic.
-🔗 GitHub: <link>
+🔗 GitHub: https://github.com/RAHUL-17-rrs/khurak
 
 #GreatIndianAIInternshipChallenge #GnaniAI #VoiceAI #IndicAI #HealthTech #BuildInPublic
 
