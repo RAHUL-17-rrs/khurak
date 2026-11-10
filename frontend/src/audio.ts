@@ -1,12 +1,16 @@
 /** Browser audio helpers: record the mic as 16-bit PCM WAV (no ffmpeg needed server-side),
  *  and play a queue of clips one after another. */
 
+export interface Capture { blob: Blob; peak: number; seconds: number; device: string }
+
 export class WavRecorder {
   private ctx: AudioContext | null = null
   private stream: MediaStream | null = null
   private node: ScriptProcessorNode | null = null
+  private sink: GainNode | null = null
   private chunks: Float32Array[] = []
   private rate = 16000
+  private peak = 0
   level = 0
 
   async start() {
@@ -14,30 +18,45 @@ export class WavRecorder {
       audio: { channelCount: 1, echoCancellation: true, noiseSuppression: false, autoGainControl: true },
     })
     this.ctx = new AudioContext()
+    // Chrome may hand back a suspended context; without this the processor never fires.
+    if (this.ctx.state === 'suspended') await this.ctx.resume()
     this.rate = this.ctx.sampleRate
     const src = this.ctx.createMediaStreamSource(this.stream)
     this.node = this.ctx.createScriptProcessor(4096, 1, 1)
     this.chunks = []
+    this.peak = 0
     this.node.onaudioprocess = (e) => {
       const d = e.inputBuffer.getChannelData(0)
       this.chunks.push(new Float32Array(d))
       let s = 0
-      for (let i = 0; i < d.length; i += 16) s += d[i] * d[i]
+      for (let i = 0; i < d.length; i += 16) {
+        s += d[i] * d[i]
+        const a = Math.abs(d[i])
+        if (a > this.peak) this.peak = a
+      }
       this.level = Math.min(1, Math.sqrt(s / (d.length / 16)) * 4)
     }
     src.connect(this.node)
-    this.node.connect(this.ctx.destination)
+    // A silent sink keeps the processor pulling. Connecting straight to destination would send the
+    // microphone back out of the speakers, and the echo canceller then treats the speaker's voice as
+    // echo of the mic and mutes it, so the whole answer arrives as silence.
+    this.sink = this.ctx.createGain()
+    this.sink.gain.value = 0
+    this.node.connect(this.sink)
+    this.sink.connect(this.ctx.destination)
   }
 
-  async stop(): Promise<Blob> {
+  async stop(): Promise<Capture> {
+    const device = this.stream?.getAudioTracks()[0]?.label || 'unknown microphone'
     this.node?.disconnect()
+    this.sink?.disconnect()
     this.stream?.getTracks().forEach((t) => t.stop())
     await this.ctx?.close()
     const len = this.chunks.reduce((a, c) => a + c.length, 0)
     const pcm = new Float32Array(len)
     let o = 0
     for (const c of this.chunks) { pcm.set(c, o); o += c.length }
-    return encodeWav(pcm, this.rate)
+    return { blob: encodeWav(pcm, this.rate), peak: this.peak, seconds: len / this.rate, device }
   }
 }
 

@@ -121,11 +121,22 @@ export default function PhoneSimulator({ status }: { status: AppStatus | null })
   const stopRec = async () => {
     if (timer.current) { clearInterval(timer.current); timer.current = null }
     if (!rec.current || !callId) return
-    const blob = await rec.current.stop()
+    const cap = await rec.current.stop()
     rec.current = null
+    setLevel(0)
+    // Don't spend a Prisma call on an empty recording, and don't report it as the patient's silence.
+    if (cap.seconds < 0.4) {
+      setErr('That recording was too short. Hold the button long enough to finish your sentence.')
+      setPhase('your_turn'); return
+    }
+    if (cap.peak < 0.012) {
+      setErr(`No sound reached the browser from “${cap.device}”, so there was nothing to send. ` +
+        'Check that the right microphone is selected and unmuted, and watch the meter move while you speak.')
+      setPhase('your_turn'); return
+    }
     setPhase('processing')
     try {
-      const r = await api.answer(callId, { audio: blob, source: 'live', noise, snr })
+      const r = await api.answer(callId, { audio: cap.blob, source: 'live', noise, snr })
       await handle(r, noise === 'clean' ? 'your voice (live mic)' : `your voice + ${noise} @ ${snr} dB`)
     } catch (e) { setErr(String(e)); setPhase('your_turn') }
   }
@@ -238,7 +249,12 @@ export default function PhoneSimulator({ status }: { status: AppStatus | null })
                   {phase === 'recording' ? (
                     <button onClick={stopRec} className="w-full rounded-2xl bg-red-600 py-3 font-semibold">
                       Stop and send ({secs.toFixed(1)}s / {status?.max_answer_seconds ?? 15}s)
-                      <span className="mx-auto mt-1 block h-1 rounded bg-white/70" style={{ width: `${Math.max(4, level * 100)}%` }} />
+                      <span className="mx-auto mt-2 flex h-2 w-11/12 overflow-hidden rounded bg-black/40" aria-hidden>
+                        <span className="h-full rounded bg-white transition-[width] duration-100" style={{ width: `${Math.min(100, level * 100)}%` }} />
+                      </span>
+                      <span className="mt-1 block text-xs font-normal">
+                        {level > 0.04 ? 'Microphone is picking you up' : secs > 1.2 ? 'No sound yet. Is the right mic selected?' : 'Speak now'}
+                      </span>
                     </button>
                   ) : (
                     <>
